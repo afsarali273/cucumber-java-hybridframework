@@ -20,6 +20,7 @@ import org.openqa.selenium.WebDriver;
 import com.framework.data.FrameworkDataTable;
 import com.framework.selenium.CustomDriver;
 import com.framework.selenium.SeleniumReport;
+import com.microsoft.playwright.*;
 
 /**
  * Wrapper class for common framework objects, to be used across the entire test
@@ -33,6 +34,12 @@ public class ScriptHelper {
 	protected final SeleniumReport report;
 	private CustomDriver customDriver;
 	private RestAssuredUtils apiDriver;
+	
+	// Playwright objects
+	private Playwright playwright;
+	private Browser playwrightBrowser;
+	private BrowserContext playwrightContext;
+	private Page playwrightPage;
 	/**
 	 * Constructor to initialize all the objects wrapped by the {@link ScriptHelper}
 	 * class
@@ -49,6 +56,22 @@ public class ScriptHelper {
 		this.report = report;
 		this.customDriver = customDriver;
 		this.apiDriver = apiDriver;
+	}
+	
+	/**
+	 * Constructor with Playwright support
+	 */
+	public ScriptHelper(FrameworkDataTable dataTable, SeleniumReport report, CustomDriver customDriver, 
+			RestAssuredUtils apiDriver, Playwright playwright, Browser playwrightBrowser, 
+			BrowserContext playwrightContext, Page playwrightPage) {
+		this.dataTable = dataTable;
+		this.report = report;
+		this.customDriver = customDriver;
+		this.apiDriver = apiDriver;
+		this.playwright = playwright;
+		this.playwrightBrowser = playwrightBrowser;
+		this.playwrightContext = playwrightContext;
+		this.playwrightPage = playwrightPage;
 	}
 	
 //	public ScriptHelper(DataTable dataTable, SeleniumReport report, RstAssuredUtils apiDriver) {
@@ -89,13 +112,55 @@ public class ScriptHelper {
 	 * Function to get the {@link RestAssuredUtils} object
 	 * 
 	 * @return The {@link apiDriver} object
-
 	 */
 	public RestAssuredUtils getApiDriver() {
 		return apiDriver;
 	}
-
-
-
+	
+	/**
+	 * Function to get the Playwright object
+	 * 
+	 * @return The Playwright object
+	 */
+	public Playwright getPlaywright() {
+		return playwright;
+	}
+	
+	/**
+	 * Function to get the Playwright Browser object
+	 * 
+	 * @return The Browser object
+	 */
+	public Browser getPlaywrightBrowser() {
+		return playwrightBrowser;
+	}
+	
+	/**
+	 * Function to get the Playwright BrowserContext object
+	 * 
+	 * @return The BrowserContext object
+	 */
+	public BrowserContext getPlaywrightContext() {
+		return playwrightContext;
+	}
+	
+	/**
+	 * Function to get the Playwright Page object
+	 * 
+	 * @return The Page object
+	 */
+	public Page getPlaywrightPage() {
+		return playwrightPage;
+	}
+	
+	/**
+	 * Function to set Playwright objects
+	 */
+	public void setPlaywrightObjects(Playwright playwright, Browser browser, BrowserContext context, Page page) {
+		this.playwright = playwright;
+		this.playwrightBrowser = browser;
+		this.playwrightContext = context;
+		this.playwrightPage = page;
+	}
 
 }

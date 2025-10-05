@@ -368,6 +368,48 @@
 			<scope>test</scope>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/com.microsoft.playwright/playwright -->
+		<dependency>
+			<groupId>com.microsoft.playwright</groupId>
+			<artifactId>playwright</artifactId>
+			<version>1.55.0</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.microsoft.playwright/driver-bundle -->
+		<dependency>
+			<groupId>com.microsoft.playwright</groupId>
+			<artifactId>driver-bundle</artifactId>
+			<version>1.55.0</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.microsoft.playwright/driver -->
+		<dependency>
+			<groupId>com.microsoft.playwright</groupId>
+			<artifactId>driver</artifactId>
+			<version>1.55.0</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.microsoft.playwright/assertions -->
+		<dependency>
+			<groupId>com.microsoft.playwright</groupId>
+			<artifactId>assertions</artifactId>
+			<version>1.17.2</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.microsoft.playwright/parent-pom -->
+		<dependency>
+			<groupId>com.microsoft.playwright</groupId>
+			<artifactId>parent-pom</artifactId>
+			<version>1.55.0</version>
+			<type>pom</type>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.microsoft.playwright/api-generator -->
+		<dependency>
+			<groupId>com.microsoft.playwright</groupId>
+			<artifactId>api-generator</artifactId>
+			<version>0.170.2</version>
+		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/com.healthmarketscience.jackaccess/jackaccess -->
 		<dependency>
 			<groupId>com.healthmarketscience.jackcess</groupId>

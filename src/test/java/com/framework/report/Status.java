@@ -34,6 +34,10 @@ public enum Status {
 	 */
 	PASS,
 	/**
+	 * Indicates a message that is logged into the results for informational purposes
+	 */
+	INFO,
+	/**
 	 * Indicates a step that is logged into the results for informational purposes,
 	 * along with an attached screenshot for reference
 	 */

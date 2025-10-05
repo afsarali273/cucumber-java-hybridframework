@@ -33,6 +33,11 @@ public enum ToolName {
 	
 	SELENIUM,
 	/**
+	 * Use Playwright for execution
+	 */
+	
+	PLAYWRIGHT,
+	/**
 	 * Use API for execution
 	 */
 	

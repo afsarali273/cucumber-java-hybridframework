@@ -80,7 +80,7 @@ public class ExtentReport {
 	 */
 	public void updateExtentReport(String stepName, String stepDescription, String status,String screenshotpath) {
 
-		if(status.contains("DONE")||status.contains("SCREENSHOTS"))
+		if(status.contains("DONE")||status.contains("SCREENSHOTS")||status.contains("INFO"))
 			status="INFO";
 		if(status.contains("DEBUG"))
 			status="WARNING";	
@@ -89,7 +89,7 @@ public class ExtentReport {
 
 	public void updateExtentReport(String stepName, String stepDescription, String status) {
 		
-		if(status.contains("DONE")||status.contains("SCREENSHOTS")) {
+		if(status.contains("DONE")||status.contains("SCREENSHOTS")||status.contains("INFO")) {
 			status="INFO";
 		} else if(status.contains("DEBUG")) {
 			status="WARNING";

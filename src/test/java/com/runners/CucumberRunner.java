@@ -25,7 +25,7 @@ import io.cucumber.testng.CucumberOptions;
 @CucumberOptions(features = "src/test/resources/features", 
 glue = { "com.cucumber.steps" , "com.framework.webcrawler"}, 
 //Please fill the needed tag(s)
-tags = "@SauceDemoLoginTest",
+tags = "@PlaywrightCart",
 monochrome = true,
 dryRun = false,
 plugin = { "pretty",

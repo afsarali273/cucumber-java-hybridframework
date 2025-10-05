@@ -1,0 +1,309 @@
+{
+  "LOCALChrome":  {
+    "ExecutionMode": "LOCAL",
+    "ToolName": "SELENIUM",
+    "Browser": "CHROME",
+    "_BrowserOptions":"CHROME,FIREFOX,INTERNET_EXPLORER,EDGE,GHOST_DRIVER,CHROME_HEADLESS"
+  },
+  "LOCALChrome_HEADLESS":  {
+    "ExecutionMode": "LOCAL",
+    "ToolName": "SELENIUM",
+    "Browser": "CHROME_HEADLESS",
+    "_BrowserOptions":"CHROME,FIREFOX,INTERNET_EXPLORER,EDGE,GHOST_DRIVER,CHROME_HEADLESS"
+  },
+  "LOCALFirefox":  {
+    "ExecutionMode": "LOCAL",
+    "ToolName": "SELENIUM",
+    "Browser": "FIREFOX",
+    "_BrowserOptions":"CHROME,FIREFOX,INTERNET_EXPLORER,EDGE,GHOST_DRIVER,CHROME_HEADLESS"
+  },
+  "LOCALEdge":  {
+    "ExecutionMode": "LOCAL",
+    "ToolName": "SELENIUM",
+    "Browser": "EDGE",
+    "_BrowserOptions":"CHROME,FIREFOX,INTERNET_EXPLORER,EDGE,GHOST_DRIVER,CHROME_HEADLESS"
+  },
+  "LOCALChromeEmulation":  {
+    "ExecutionMode": "LOCAL",
+    "ToolName": "SELENIUM",
+    "Browser": "CHROME_MOBILE_EMULATION",
+    "DeviceName":"Galaxy S5",
+    "_BrowserOptions":"CHROME,FIREFOX,INTERNET_EXPLORER,EDGE,GHOST_DRIVER,CHROME_HEADLESS"
+  },
+  "AppiumNativeAndroid":
+  {
+    "ExecutionMode": "MOBILE",
+    "ToolName": "APPIUM",
+    "MobileExecutionPlatform": "ANDROID",
+    "MobileOSVersion":"9.0",
+    "DeviceName":"emulator-5556"
+  },
+  "AppiumWebAndroid":
+  {
+    "ExecutionMode": "MOBILE",
+    "ToolName": "APPIUM",
+    "MobileExecutionPlatform": "WEB_ANDROID",
+    "MobileOSVersion":"9.0",
+    "DeviceName":"emulator-5556",
+    "Browser": "CHROME",
+    "_BrowserOptions":"CHROME,FIREFOX,INTERNET_EXPLORER,EDGE,GHOST_DRIVER,CHROME_HEADLESS"
+  },
+  "AppiumNativeIOS":
+  {
+    "ExecutionMode": "MOBILE",
+    "ToolName": "APPIUM",
+    "MobileExecutionPlatform": "IOS",
+    "MobileOSVersion":"14.5.1",
+    "DeviceName":"00008101-001578CA28E1401E"
+  },
+  "AppiumWebIOS":
+  {
+    "ExecutionMode": "MOBILE",
+    "ToolName": "APPIUM",
+    "MobileExecutionPlatform": "WEB_IOS",
+    "MobileOSVersion":"15.0",
+    "DeviceName":"40F0AD7A-5694-4ABB-A59E-1749232E0B26",
+    "Browser": "SAFARI",
+    "_BrowserOptions":"CHROME,FIREFOX,INTERNET_EXPLORER,EDGE,GHOST_DRIVER,CHROME_HEADLESS"
+  },
+  "SaucelabsWebChrome":
+  {
+    "ExecutionMode": "SAUCELABS",
+    "ToolName": "REMOTE_WEBDRIVER",
+    "Browser": "CHROME",
+    "BrowserVersion": "latest",
+    "Platform": "WIN10",
+    "_BrowserOptions":"CHROME,FIREFOX,INTERNET_EXPLORER,EDGE,GHOST_DRIVER,CHROME_HEADLESS"
+  },
+  "SaucelabsWebFirefox":
+  {
+    "ExecutionMode": "SAUCELABS",
+    "ToolName": "REMOTE_WEBDRIVER",
+    "Browser": "FIREFOX",
+    "BrowserVersion": "latest",
+    "Platform": "WIN10",
+    "_BrowserOptions":"CHROME,FIREFOX,INTERNET_EXPLORER,EDGE,GHOST_DRIVER,CHROME_HEADLESS"
+  },
+  "SaucelabsWebEdge":
+  {
+    "ExecutionMode": "SAUCELABS",
+    "ToolName": "REMOTE_WEBDRIVER",
+    "Browser": "MicrosoftEdge",
+    "BrowserVersion": "latest",
+    "Platform": "WIN10",
+    "_BrowserOptions":"CHROME,FIREFOX,INTERNET_EXPLORER,EDGE,GHOST_DRIVER,CHROME_HEADLESS"
+  },
+  "SaucelabsMobileAndroid":
+  {
+    "ExecutionMode": "SAUCELABS",
+    "ToolName": "APPIUM",
+    "MobileExecutionPlatform": "ANDROID",
+    "MobileOSVersion":"12",
+    "DeviceName":"Samsung Galaxy S21 5G",
+    "Browser": "CHROME",
+    "_MobileExecutionPlatform":"ANDROID,IOS,WEB_ANDROID,IOS"
+  },
+  "SaucelabsWebAndroid":
+  {
+    "ExecutionMode": "SAUCELABS",
+    "ToolName": "APPIUM",
+    "MobileExecutionPlatform": "WEB_ANDROID",
+    "MobileOSVersion":"8.0",
+    "DeviceName":"Android Emulator",
+    "Browser": "CHROME",
+    "_MobileExecutionPlatform":"ANDROID,IOS,WEB_ANDROID,IOS"
+  },
+  "SaucelabsWebIOS":
+  {
+    "ExecutionMode": "SAUCELABS",
+    "ToolName": "APPIUM",
+    "MobileExecutionPlatform": "WEB_IOS",
+    "MobileOSVersion":"13.2",
+    "Browser": "SAFARI",
+    "DeviceName":"iPhone XS Max Simulator",
+    "_MobileExecutionPlatform":"ANDROID,IOS,WEB_ANDROID,IOS"
+  },
+  "SaucelabsMobileIOS":
+  {
+    "ExecutionMode": "SAUCELABS",
+    "ToolName": "APPIUM",
+    "MobileExecutionPlatform": "IOS",
+    "MobileOSVersion":"16",
+    "DeviceName":"iPhone 14 Pro",
+    "Browser": "CHROME",
+    "_MobileExecutionPlatform":"ANDROID,IOS,WEB_ANDROID,IOS,WEB_IOS"
+  },
+  "API":
+  {
+    "ExecutionMode": "API",
+    "ToolName": "API"
+  },
+  "GRID":
+  {
+    "ExecutionMode": "GRID",
+    "ToolName": "SELENIUM",
+    "Browser": "EDGE",
+    "BrowserVersion": "12",
+    "Platform": "MAC",
+    "PlatformOptions": "MAC,VISTA,XP,WIN8,WIN10,WIN8_1,LINUX"
+  },
+
+  "LAMBDATESTWebChrome":
+  {
+    "ExecutionMode": "LAMBDATEST",
+    "Browser": "CHROME",
+    "BrowserVersion": "latest",
+    "Platform": "WIN10",
+    "ToolName": "REMOTE_WEBDRIVER",
+    "_BrowserOptions":"CHROME,FIREFOX,INTERNET_EXPLORER,EDGE,GHOST_DRIVER,CHROME_HEADLESS"
+  },
+  "LAMBDATESTWebFirefox":
+  {
+    "ExecutionMode": "LAMBDATEST",
+    "Browser": "FIREFOX",
+    "BrowserVersion": "latest",
+    "Platform": "WIN10",
+    "ToolName": "REMOTE_WEBDRIVER",
+    "_BrowserOptions":"CHROME,FIREFOX,INTERNET_EXPLORER,EDGE,GHOST_DRIVER,CHROME_HEADLESS"
+  },
+  "LAMBDATESTWebEdge":
+  {
+    "ExecutionMode": "LAMBDATEST",
+    "Browser": "EDGE",
+    "BrowserVersion": "latest",
+    "Platform": "WIN10",
+    "ToolName": "REMOTE_WEBDRIVER",
+    "_BrowserOptions":"CHROME,FIREFOX,INTERNET_EXPLORER,EDGE,GHOST_DRIVER,CHROME_HEADLESS"
+  },
+  "LAMBDATESTMobileAndroid":
+  {
+    "ExecutionMode": "LAMBDATEST",
+    "ToolName": "APPIUM",
+    "MobileExecutionPlatform": "ANDROID",
+    "MobileOSVersion":"12",
+    "DeviceName":"Galaxy S21 Ultra 5G"
+  },
+  "LAMBDATESTMobileIOS":
+  {
+    "ExecutionMode": "LAMBDATEST",
+    "ToolName": "APPIUM",
+    "MobileExecutionPlatform": "IOS",
+    "MobileOSVersion":"16",
+    "DeviceName":"iPhone 14 Pro Max"
+  },
+  "LAMBDATESTWebAndroid":
+  {
+    "ExecutionMode": "LAMBDATEST",
+    "ToolName": "APPIUM",
+    "MobileExecutionPlatform": "WEB_ANDROID",
+    "MobileOSVersion":"11",
+    "DeviceName":"Galaxy S21 Ultra 5G",
+    "Browser": "CHROME",
+    "_MobileExecutionPlatform":"ANDROID,IOS,WEB_ANDROID,IOS"
+  },
+  "LAMBDATESTWebIOS":
+  {
+    "ExecutionMode": "LAMBDATEST",
+    "ToolName": "APPIUM",
+    "MobileExecutionPlatform": "WEB_IOS",
+    "MobileOSVersion":"14",
+    "Browser": "SAFARI",
+    "DeviceName":"iPhone 11",
+    "_MobileExecutionPlatform":"ANDROID,IOS,WEB_ANDROID,IOS"
+  },
+  "BROWSERSTACKWebChrome":
+  {
+    "ExecutionMode": "BROWSERSTACK",
+    "Browser": "CHROME",
+    "BrowserVersion": "latest",
+    "Platform": "WIN10",
+    "ToolName": "REMOTE_WEBDRIVER",
+    "_BrowserOptions":"CHROME,FIREFOX,INTERNET_EXPLORER,EDGE,GHOST_DRIVER,CHROME_HEADLESS"
+  },
+  "BROWSERSTACKWebFirefox":
+  {
+    "ExecutionMode": "BROWSERSTACK",
+    "Browser": "FIREFOX",
+    "BrowserVersion": "latest",
+    "Platform": "WIN10",
+    "ToolName": "REMOTE_WEBDRIVER",
+    "_BrowserOptions":"CHROME,FIREFOX,INTERNET_EXPLORER,EDGE,GHOST_DRIVER,CHROME_HEADLESS"
+  },
+  "BROWSERSTACKWebEdge":
+  {
+    "ExecutionMode": "BROWSERSTACK",
+    "Browser": "EDGE",
+    "BrowserVersion": "latest",
+    "Platform": "WIN10",
+    "ToolName": "REMOTE_WEBDRIVER",
+    "_BrowserOptions":"CHROME,FIREFOX,INTERNET_EXPLORER,EDGE,GHOST_DRIVER,CHROME_HEADLESS"
+  },
+  "BROWSERSTACKMobileAndroid":
+  {
+    "ExecutionMode": "BROWSERSTACK",
+    "ToolName": "APPIUM",
+    "MobileExecutionPlatform": "ANDROID",
+    "MobileOSVersion":"11.0",
+    "DeviceName":"Samsung Galaxy S21 Ultra"
+  },
+  "BROWSERSTACKMobileIOS":
+  {
+    "ExecutionMode": "BROWSERSTACK",
+    "ToolName": "APPIUM",
+    "MobileExecutionPlatform": "IOS",
+    "MobileOSVersion":"14",
+    "DeviceName":"iPhone 11"
+  },
+  "BROWSERSTACKWebAndroid":
+  {
+    "ExecutionMode": "BROWSERSTACK",
+    "ToolName": "APPIUM",
+    "MobileExecutionPlatform": "WEB_ANDROID",
+    "MobileOSVersion":"10.0",
+    "DeviceName":"Samsung Galaxy S20",
+    "Browser": "CHROME",
+    "_MobileExecutionPlatform":"ANDROID,IOS,WEB_ANDROID,IOS"
+  },
+  "BROWSERSTACKWebIOS":
+  {
+    "ExecutionMode": "BROWSERSTACK",
+    "ToolName": "APPIUM",
+    "MobileExecutionPlatform": "WEB_IOS",
+    "MobileOSVersion":"16",
+    "Browser": "SAFARI",
+    "DeviceName":"iPhone 14",
+    "_MobileExecutionPlatform":"ANDROID,IOS,WEB_ANDROID,IOS"
+  },
+  "AWSDEVICEFARMWebChrome":
+  {
+    "ExecutionMode": "AWSDEVICEFARM",
+    "Browser": "CHROME",
+    "BrowserVersion": "latest",
+    "Platform": "WIN10",
+    "ToolName": "REMOTE_WEBDRIVER",
+    "_BrowserOptions":"CHROME,FIREFOX,INTERNET_EXPLORER,EDGE,GHOST_DRIVER,CHROME_HEADLESS"
+  },
+  "AWSDEVICEFARMWebFirefox":
+  {
+    "ExecutionMode": "AWSDEVICEFARM",
+    "Browser": "FIREFOX",
+    "BrowserVersion": "latest",
+    "Platform": "WIN10",
+    "ToolName": "REMOTE_WEBDRIVER",
+    "_BrowserOptions":"CHROME,FIREFOX,INTERNET_EXPLORER,EDGE,GHOST_DRIVER,CHROME_HEADLESS"
+  },
+  "AWSDEVICEFARMWebEdge":
+  {
+    "ExecutionMode": "AWSDEVICEFARM",
+    "Browser": "MicrosoftEdge",
+    "BrowserVersion": "latest",
+    "Platform": "WIN10",
+    "ToolName": "REMOTE_WEBDRIVER",
+    "_BrowserOptions":"CHROME,FIREFOX,INTERNET_EXPLORER,EDGE,GHOST_DRIVER,CHROME_HEADLESS"
+  },
+  "WINDOWSEXECUTION":
+  {
+    "ExecutionMode": "WINDOWS",
+    "ToolName": "WINDOWS"
+  }
+}

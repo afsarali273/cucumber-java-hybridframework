@@ -1,0 +1,7 @@
+/target/
+.classpath
+/Results/
+.settings/
+.project
+/test-output/
+/testresult/

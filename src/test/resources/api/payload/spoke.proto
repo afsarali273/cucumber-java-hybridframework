@@ -1,0 +1,679 @@
+syntax = "proto3";
+
+package sands.live_dealer.spoke;
+
+option go_package = "github.com/SandsB2B/live_dealer/spoke/grpc";
+option java_multiple_files = true;
+option java_outer_classname = "Spoke";
+option java_package = "io.sands.live_dealer.spoke.v1";
+
+import "spoke_game.proto";
+
+/*
+
+The Spoke Service
+===================
+
+The spoke service is the server that game client connect to.
+
+Internally it routes and pulls the functionality of other services together
+to deliver the player's game experience.
+
+
+High-Level Concepts
+===================
+
+These are the high-level concepts that the spoke service works on.
+
+
+Rules, Tables, and Plays
+-------------------
+
+A single game of blackjack or a spin of a roulette wheel is a "Play".
+
+Plays always take place on a "Table".
+
+The wagering and dealing procedure for a Table are the "Rules" of the Table.
+
+A Table may have no Play on it, but it never has more than one in-progress Play.
+
+A Table represents a configuration for playing the game that can have Plays attached to it,
+and when active, will always mean a physical table with a dealer that players see on camera.
+However, when the rules of the game change, like perhaps a studio dealer stops dealing
+blackjack and starts dealing baccarat, then one digital Table is closed and another is opened.
+
+
+Spoke and Hub Together
+-------------------
+
+The hub data strutures (Rules, Table, Play) are the generic foundation that the Spoke layers on top.
+
+The spoke adds the game rules and wagering limits to the hub's dealing-procedure information.
+
+
+Spoke Requests
+-------------------
+
+Spokes request that the hub take actions or pass on information to other parts of the system.
+
+The hub does not initiate actions on its own, but the spoke will tell the hub what do do and when. For exmaple,
+when its time to deal a new card in a game, the spoke will tell the hub it wants a new cards and 
+then that request is routed through the hub to a screen that a live dealer can see and they deal
+a new card, scanning it, sending it to the hub, which then sends it on to the spoke.
+
+
+Input and Configuration Values
+===================
+
+Some notes on how inputs and configuration values are handled.
+
+
+Preening Values
+-------------------
+
+Many string values passed into the Service are:
+
+- converted to lower case
+- leading and trailing whitespace is trimmed
+
+An exception is listenings of possible dealt values.
+
+
+Key String
+-------------------
+
+Any value noted as a "key string" only allows these characters:
+
+- a-z
+- 0-9
+- "."
+- "-"
+- "_"
+
+Since string values are preened coming into the system, upper case letters will pass error
+checks since they are converted to lower case letters.
+
+
+Architecture
+===================
+
+This service is deployed a as docker-container microservice.
+
+
+gRPC
+-------------------
+
+This service uses the gRPC communication protocol.
+
+
+Stateless
+-------------------
+
+This service is stateless and can scale horizontally.
+
+Some objects are read-only can can be safely cached in memory.
+
+
+Configuration
+-------------------
+
+This service is configured by JSON configuration files.
+
+
+Databases
+-------------------
+
+The services uses a MySQL database.
+
+Configuration
+===================
+
+There are two configuration files for the service:
+
+- env.json. These are settings that different for each environment,
+      mounted as docker volume.
+- secrets.json. These are sensitive settings (like database passwords) 
+      that different for each environment, stored as kubernetes secrets,
+      mounted as docker volume.
+
+In addition, the available game rules and tables are files nested in the configuration path.
+
+
+env.json
+-------------------
+
+Example:
+
+{
+	"Spoke": "spoke_a",
+	"GrpcPort": "8010",
+	"GrpcHttpPort": "8020",
+	"ServeHttp": false,
+	"HealthCheckPort": "8011",
+	"BridgeConfig": {
+		"PollSleepMilli": 100,
+		"StreamMaxSec": 300,
+		"SeatDataCacheLifetimeSec": 120
+	},
+	"HubService": {
+		"Service": "hub-service:8000",
+		"TimeoutSec": 300
+	},
+	"UserService": {
+		"Service": "user-service:5000",
+		"TimeoutSec": 300
+	},
+	"WalletService": {
+		"Service": "wallet-service:6000",
+		"TimeoutSec": 300
+	},
+	"SideBetService": {
+		"Service": "sidebet-service:9099",
+		"TimeoutSec": 300
+	},
+	"SpokeMysql": {
+		"TimeoutSec": 60
+	}
+}
+
+
+The settings are:
+
+- Spoke. The identifier for this spoke.
+- GrpcPort. The port the docker container will expose to kubernetes.
+    This port is used by native game clients.
+- GrpcHttpPort. The port the docker container will expose to kubernetes.
+    This port is used by native game clients. The port serves gRPC over HTTP/1
+    with Improbable Engine (github.com/improbable-eng/grpc-web/go/grpcweb).
+- ServeHttp. When true the GrpcHttpPort is live, when false it is not live. GrpcPort is always live.
+- HealthCheckPort. The port used for health checks. This is not exposed
+    through kubernetes, but kubernetes does instruct the heath check binary
+    inside the container to use this port when doing healt checks.
+
+The BridgeConfig settings decribe the behavior of the internal gRPC server:
+
+- PollSleepMilli. The number of milliseconds between each poll of the database when streaming data through gRPC.
+- StreamMaxSec. The maximum number of seconds to stream then close the stream with a final push of data.
+- SeatDataCacheLifetimeSec. Aggregate player choices are streamed to the client for user experience (seeing
+    how peole are betting in a game with lots of players). That data is ephemeral and not used by game logic
+    (and changes often). This data is cached in memory and this setting is the lifetime of that cache.
+
+The Spoke talkes to multiple microservices and each connection needs a host, port, and timeout value. The services are:
+
+- HubService. The server dedicated to the video studio with the live dealers.
+- UserService. A common login server in the hub environment that ensure all users have unique ids.
+- WalletService. A server in the spoke environment that keeps track of user balances, wagers, and payouts.
+- SideBetService. A server in the spoke environment that contains logic for how to process a multitude of side bets.
+
+The SpokeMysql settings describe bevhaior in the database layer of the service:
+
+- TimeoutSec. On server startup, the number of seconds to wait for a database connection before failing.
+
+
+secrets.json
+-------------------
+
+Example:
+
+{
+	"Mysql": {
+		"User": "sands",
+		"Passwd": "sands4000",
+		"Addr": "spoke-service-func-test-db:3306",
+		"DBName": "spoke_service"
+	}
+}
+
+The json object in the Mysql member is actually the driver configuration object
+for the golang library.
+
+This is currently: https://github.com/go-sql-driver/mysql/blob/v1.6.0/dsn.go
+
+The Config object in that file, any of those settings can be in our secrets.json.
+
+
+Rules
+===================
+
+Wereas the hub rules are dealing procedures, the spoke rules are betting and anything that defines
+how a game plays that isn't a dealing procedure.
+
+Each spoke rules should match to exactly one hub rules with the same identifying RulesKey.
+
+The avaiable rules are nested inside the config path for the spoke service in the "rules" folder.
+
+Each subfolder is the name of the rules. So "spoke/config/rules/baccarat_basic"
+contains files that describe the all the wagering rules for the "baccarat_basic" rules
+(the "RulesKey" in the gRPC requests).
+
+Every set of rules is defined by three files:
+
+- rules.json. The game-agnostic rules settings, common across all games.
+    Currently no game-agnostic rules exist, so this is always "{}".
+- rules_variant.json. The game-specific settings.
+- game_wagers.json. The wagers that exist in the game.
+
+
+Baccarat and Blackjack Rules
+-------------------
+
+The rules_variant.json for baccarat and blackjack games have no game-specific data so are always: "{}".
+
+
+Roulette Rules
+-------------------
+
+The rules_variant.json for roulette looks like this:
+
+{
+	"WagerHits": {
+		"even": [
+			"2",
+      ...
+			"34",
+			"36"
+		],
+    ...
+		"0-00-1-2-3": [
+			"0",
+			"00",
+			"1",
+			"2",
+			"3"
+		]
+	}
+}
+
+The settings mean:
+
+- WagerHits. The mapping of which wheel stops pay off which wagers. The key is the name of the wager and the value is 
+    an array of the wheel stops that pay it out.
+
+
+Tables
+===================
+
+The tables are describe inside the tables.json file inside the rules path, all spoke tables are described in a single configuration file.
+
+So all the tables for the "baccarat_basic" ruloes is in thie file:
+"spoke/config/rules/baccarat_basic/tables.json"
+
+A tables json looks like this:
+
+{
+	"TableConfigs": [
+		{
+			"TableKey": "baccarat_a",
+			"Property": "some_location",
+			"Name": "Baccarat A"
+		},
+		{
+			"TableKey": "baccarat_b",
+			"Property": "some_location",
+			"Name": "Baccarat B"
+		},
+		{
+			"TableKey": "baccarat_c_timer",
+			"Property": "some_location",
+			"Name": "Baccarat C"
+		}
+	]
+}
+
+
+With these settings:
+
+- TableConfigs. The list of tables available on the spoke.
+
+Each table has these settings:
+
+- TableKey. The identity of the table. Must match a table key on the hub.
+- Property. Information only. Metadata to describe the any particular property that the table belongs to.
+- Name. The name of the table used by the game client.
+
+
+
+Build
+===================
+
+To build the docker container: ./build.sh
+
+
+Errors
+===================
+
+Error numbers that can be returned from this service: 
+
+SUCCESS                    = 0        // No error.
+MISSING_PARAMETER          = 10050001 // A parameter is missing.
+INTERNAL_ERROR             = 10050002 // An error that is unrecoverable from the client.
+INVALID_CONFIG             = 10050003 // A configuration file is malformed.
+INVALID_USER               = 10050004 // A user data from the client is invalid.
+INVALID_TABLE              = 10050005 // An unknown table.
+INVALID_ACTION             = 10050006 // Invalid  action input from client.
+INVALID_RULES              = 10050007 // Unknown rules.
+INVALID_PLAY               = 10050008 // Unknown play of a game.
+SEAT_UNAVAILABLE           = 10050009 // A player cannot take the seat at the table.
+INVALID_WAGER              = 10050010 // Invalid wager.
+PROTOCOL_ERROR             = 10050011 // Error in the gRPC protocol.
+DATABASE_ERROR             = 10050012 // Error in a database operation.
+DUPLICATE_WAGER_DESC       = 10050013 // Duplicate wager descriptor
+REQUIRED_WAGER_MISSING     = 10050014 // Game missing required wager rule
+INVALID_WAGER_AVAIL_STATE  = 10050015 // Wager rule has invalid available state
+INVALID_WAGER_RES_STATE    = 10050016 // Wager rule has invalid resolution state
+INVALID_GAME_VARIANT_TYPE  = 10050017 // Game variant type was not what was expected
+TABLE_CONFIG_MISSING       = 10050018 // Table config missing for key
+CONFIG_DIR_DOESNT_EXIST    = 10050019 // Config dir doesn't exist
+CONFIG_DIR_CONTAINS_FILES  = 10050020 // Config dir contains files
+TABLE_CONFIG_FILE_MISSING  = 10050021 // Missing table config file
+GAME_WAGERS_CONFIG_MISSING = 10050022 // Game wagers config missing
+INVALID_CHOICE             = 10050023 // This choice is not for this player to make
+PLAY_RUNNING               = 10050024 // This action is not allowed when a play is running (betting closed).
+INVALID_TOKEN              = 10050025 // The session token (for user system) is malformed.
+INVALID_PLAYER_DATA        = 10050026 // The player data is not well-formed.
+
+*/
+service Spoke {
+
+  // Users.
+
+  /* Get details about this user. */
+  rpc GetSelf(GetSelfRequest) returns (GetSelfReply) {}
+
+  /* Get (streaming) details about this user. */
+  rpc StreamSelf(StreamSelfRequest) returns (stream GetSelfReply) {}
+
+  /* Update the display name and avatar image for a player, how their name would appear if sitting. */
+  rpc UpdateDisplayName(UpdateDisplayNameRequest) returns (GetSelfReply) {}
+  rpc UpdateImageUrl(UpdateImageUrlRequest) returns (GetSelfReply) {}
+
+  /* Update the user preferences, this is a key value store decided by the client. */
+  rpc UpdatePreferences(UpdatePreferencesRequest) returns (GetSelfReply) {}
+
+  // Rules.
+
+  /* Get the details of a set of rules.  */
+  rpc GetRules(GetRulesRequest) returns (GetRulesReply) {}
+
+  // Tables.
+
+	/* Gets all tables */
+  rpc GetTables(GetTablesRequest) returns (GetTablesReply) {}
+
+  /* Get table (non-streaming) and its current state.  */
+  rpc GetTable(GetTableRequest) returns (GetTableReply) {}
+
+  /* Request a (streaming) state of the table. */
+  rpc StreamTable(StreamTableRequest) returns (stream GetTableReply) {}
+
+  /* A player sits down at a table. */
+  rpc SitTable(SitTableRequest) returns (GetTableReply) {}
+
+  /* A player stands from a table. */
+  rpc StandTable(StandTableRequest) returns (GetTableReply) {}
+
+  // Play.
+
+  /* When betting is open, a player making or altering wagers on a play. */
+	rpc MakeWagers(MakeWagersRequest) returns (MakeWagersReply) {}
+
+	/* When betting is closed and a play in progress, a player making their game choices. */
+	rpc MakeChoice(MakeChoiceRequest) returns (MakeChoiceReply) {}
+
+  /* Request a (streaming) sum of all actions going on spokes for a play. */
+  rpc StreamPlayData(GetPlayDataRequest) returns (stream GetPlayDataReply) {}
+
+  /* Request a sum of all actions going on spokes for a play. */
+  rpc GetPlayData(GetPlayDataRequest) returns (GetPlayDataReply) {}
+ 
+  /* ============================================= */
+  /* End points to be migrated to test server.     */
+  /* https://sandsb2b.atlassian.net/browse/PLAT-25 */
+  /* ============================================= */
+
+  /* To support client team testing: end-points to emulate dealing device. */
+  rpc NewPlay(NewPlayRequest) returns (NewPlayReply) {}
+  rpc RunPlay(RunPlayRequest) returns (RunPlayReply) {}
+  rpc GetDealerDeviceRequests(GetDealerDeviceRequestsRequest) returns (GetDealerDeviceRequestsReply) {}
+  rpc DealtInput(DealtInputRequest) returns (GetDealerDeviceRequestsReply) {}
+  rpc DealerDeviceState(DealerDeviceStateRequest) returns (DealerDeviceStateReply) {}
+
+  /* To support client team testing: end-points to emulate payment processer. */
+  rpc TestDepositMoney(TestDepositMoneyRequest) returns (GetSelfReply) {}
+
+  /* To support client team testing: end-points to emulate itegration-partneer login service. */
+  rpc EmailRegister(EmailRegisterRequest) returns (LoginReply) {}
+  rpc Login(LoginRequest) returns (LoginReply) {}
+}
+
+message GetSelfRequest {
+  string token = 1; // Valid values: 1-255 string. The session token for this user.
+}
+
+message StreamSelfRequest {
+  string token = 1; // Valid values: 1-255 string. The session token for this user.
+}
+
+message UpdateDisplayNameRequest {
+  string token			  = 1; // Valid values: 1-255 string. The session token for this user.
+  string display_name = 2; // Valid values: 0-128 string, can be blank. The name of the player at the seat.
+}
+
+message UpdateImageUrlRequest {
+  string token		 = 1; // Valid values: 1-255 string. The session token for this user.
+  string image_url = 2; // Valid values: 0-512 string, can be blank. The image url for this seat.
+}
+
+message UpdatePreferencesRequest {
+  string token = 1; // Valid values: 1-255 string. The session token for this user.
+  map<string, string> preferences = 2; // Valid Values: keys 1-100 string, values 1-512 string, 100 keys. Arbirtary key value store set by client.
+}
+
+message GetSelfReply {
+ 	bool success     = 1; // True if the request was a sucess, false if there was an error code. 
+	Error error      = 2;
+  uint64 player_id = 3; // The database id for this player.
+  repeated Balance balances = 4; // All the balances a player has.
+  Profile profile  = 5; // The player's display and preferences.
+}
+
+message Balance {
+  uint64 player_id   = 1; // The player.
+  int64 partition_id = 2; // The part of the wallet this balance is in, zero is the main wallet.
+  string currency    = 3; // The currency type.
+  int64 amount       = 4; // The amount of the balance.
+}
+
+message Profile {
+  string display_name = 1; // The display name of the player as they would appear to other players.
+  string image_url    = 2; // The profile image for the player as they would appear to other players.
+  map<string, string> preferences = 3; // The stored preferences for this player.
+}
+
+message GetRulesRequest {
+  string token			= 1; // Valid values: 1-255 string. The session token for this user.
+  string rules_key	= 2; // Valid values: 1-128 key string. The identifying key of the rules.
+}
+
+message GetRulesReply {
+ 	bool success = 1; // True if the request was a sucess, false if there was an error code. 
+	Error error  = 2;
+	Rules rules	 = 3; // The rules requested.
+}
+
+message GetTablesRequest {
+  string token    = 1; // Valid values: 1-255 string. The session token for this user.
+}
+
+message GetTablesReply {
+ 	bool success									= 1; // True if the request was a sucess, false if there was an error code. 
+	Error error										= 2;
+  repeated SimpleTable tables		= 3; // list of tables.
+}
+
+message GetTableRequest {
+  string token		 = 1; // Valid values: 1-255 string. The session token for this user.
+  string table_key = 2; // Valid values: 1-128 key string. The identifying key of the table.
+}
+
+message StreamTableRequest {
+  string token     = 1; // Valid values: 1-255 string. The session token for this user.
+  string table_key = 2; // Valid values: 1-128 key string. The identifying key of the table.
+}
+
+message SitTableRequest {
+  string token			= 1; // Valid values: 1-255 string. The session token for this user.
+  string table_key	= 2; // Valid values: 1-128 key string. The identifying key of the table.
+  uint64 seat_num		= 3; // Value values: 1+. The seat the player is sitting down at.
+}
+
+message StandTableRequest {
+  string token			= 1; // Valid values: 1-255 string. The session token for this user.
+  string table_key	= 2; // Valid values: 1-128 key string. The identifying key of the table.
+  uint64 seat_num		= 3; // Value values: 1+. The seat the player is standing from.
+}
+
+message GetTableReply {
+ 	bool success = 1; // True if the request was a sucess, false if there was an error code. 
+	Error error  = 2;
+  Table table  = 3; // The details of this table.
+  repeated PlaySummary history     = 4; // The recent history of this table.
+  BaccaratHistory baccarat_history = 5; // The displays for baccarat, if this is  a baccarat game.
+  int64 hub_server_time = 6; // The last seen time on the hub server as Unix millisecond timestamp.
+}
+
+message MakeWagersRequest {
+  string token								= 1; // Valid values: 1-255 string. The session token for this user.
+	string table_key						= 2; // Valid values: 1-128 key string. Table to make wagers on.
+  repeated SeatWager wagers		= 3; // All the wagers being added or modified in this The wager to add/update.
+}
+
+message SeatWager {
+	int32 seat_num		= 1;	// Valid values: 1+. Seat to make wager on
+	string wager_name = 2;	// Valid values: 1-32 key string. Name of the wager.
+ 	uint64 amount			= 3;	// Valid values: 0 or within min and max value from the wager in the rules. 0 means "delete".
+}
+
+message MakeWagersReply {
+ 	bool success     = 1; // True if the request was a sucess, false if there was an error code. 
+	Error error      = 2;	// Error structure
+}
+
+message MakeChoiceRequest {
+  string token			= 1;	// Valid values: 1-255 string. The session token for this user.
+	string table_key	= 2;	// Valid values: 1-128 key string. Table to make choice on
+	int32	 step				= 3;	// Valid values: 1+. Step for action
+	string action			= 4;	// Valid values: 1-32 key string. Descriptor of choice action 
+}
+
+message MakeChoiceReply {
+ 	bool success     = 1; // True if the request was a sucess, false if there was an error code. 
+	Error error      = 2;	// Error structure
+}
+
+message GetPlayDataRequest {
+  string token   = 1; // Valid values: 1-255 string. The session token for this user.
+  uint64 play_id = 2; // Valid values: 1+. The id of the play.
+}
+
+message GetPlayDataReply {
+ 	bool success = 1; // True if the request was a sucess, false if there was an error code. 
+	Error error  = 2;
+  string device_state = 3; // The state reported from the dealing device (like a spinning roulette wheel).
+  repeated PlaySeatData seats = 4; // All data that spokes have attached to the play.
+}
+
+/* ============================================= */
+/* End points to be migrated to test server.     */
+/* https://sandsb2b.atlassian.net/browse/PLAT-25 */
+/* ============================================= */
+
+message NewPlayRequest {
+  string table_key = 1; // Valid values: 1-255 string. The id of the table.
+}
+
+message NewPlayReply {
+ 	bool success = 1; // True if the request was a sucess, false if there was an error code. 
+	Error error  = 2;
+}
+
+message RunPlayRequest {
+  string table_key = 1; // Valid values: 1-255 string. The id of the table.
+}
+
+message RunPlayReply {
+ 	bool success = 1; // True if the request was a sucess, false if there was an error code. 
+	Error error  = 2;
+}
+
+message GetDealerDeviceRequestsRequest {
+  string device_key		= 1; // Valid values: 1-512 key string. The device asking for available requests.
+}
+
+message DealtInputRequest {
+  string device_key		= 1; // Valid values: 1-512 key string. The device answering the request.
+  DealtInput input		= 2; // The input from the dealing device. Response to the a request from GetDealerDeviceRequestsRequest.
+}
+
+message DealtInput {
+  string device_key = 1; // The device sending the message.
+  int64 input_num   = 2; // The unique identifier for a requested input.
+  string request    = 3; // The request type.
+  repeated string values = 4; // All the values delivered with this input.
+}
+
+message GetDealerDeviceRequestsReply {
+ 	bool success = 1; // True if the request was a sucess, false if there was an error code. 
+	Error error  = 2;
+  repeated DealtRequest requests = 3; // Requests waiting for a reply.
+}
+
+message DealtRequest {
+  int64 input_num			= 1; // The unique identifier for a requested input.
+  string request			= 2; // The request type.
+  int64 request_count = 3; // The number of values in the payload for the request.
+}
+
+message DealerDeviceStateRequest {
+  string device_key   = 1; // Valid values: 1-512 key string. The device.
+  string device_state = 2; // Valid values: 0-32 string, can be blank. The state of the device (like a roulette wheel spinning).
+}
+
+message DealerDeviceStateReply {
+ 	bool success = 1; // True if the request was a sucess, false if there was an error code. 
+	Error error  = 2;
+}
+
+message TestDepositMoneyRequest {
+  string token  = 1; // Valid values: 1-255 string. The session token for this user.
+  uint64 amount = 2; // Valid values: 1+. The amount to add to the wallet.
+}
+
+message EmailRegisterRequest {
+  string email    = 1; // Valid values: 1-255 string. The email.
+  string password = 2; // Valid values: 1-32 string. The initial password.
+  string display_name = 3; // Valid values: 0-128 string, can be blank. The display name.
+  string image_url = 4; // Valid values: 0-512 string, can be blank. The image url.
+  map<string, string> preferences = 5; // Valid Values: keys 1-100 string, values 1-512 string, 100 keys. Arbirtary key value store set by client.
+}
+
+message LoginRequest {
+  string email    = 1; // Valid values: 1-255 string. The email.
+  string password = 2; // Valid values: 1-32 string. The password.
+}
+
+message LoginReply {
+ 	bool success     = 1; // True if the request was a sucess, false if there was an error code. 
+	Error error      = 2;
+  uint64 player_id = 3; // The database id for this user.
+  string token     = 4; // The session token for this user.
+}
+
+/**
+ * Error is the information passed back from a microservice to indicate the state of a request.
+ */
+message Error {
+  int64 code     = 1; // The numeric code for this error.
+  string message = 2; // The informative message for this error.
+}
+

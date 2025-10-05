@@ -1,0 +1,373 @@
+syntax = "proto3";
+
+package sands.live_dealer.spoke;
+
+option go_package = "github.com/SandsB2B/live_dealer/spoke/grpc";
+option java_multiple_files = true;
+option java_outer_classname = "Spoke";
+option java_package = "io.sands.live_dealer.spoke.v1";
+
+
+/********************************************************************************************************************
+ * RULES
+ ********************************************************************************************************************/
+
+/**
+ * Rules define all the betting procedures for a game. When partnered with the dealing procedures from
+ * the hub Rules, the spoke can completely run the play.
+ *
+ *   - Rules are read-only. Once created they never change.
+ */
+message Rules {
+    string rules_key = 1; // The identifier for the rules.
+    string game      = 2; // The game played.
+    string variant   = 3; // The variant of the game to play.
+    string seating   = 4; // The kind of seating the table has when using these rules (effects dealing procedure).
+    bool run_requires_wager    = 5; // If true, wager required to run game
+    VariantRules variant_rules = 6;    // Rules struct for game-specific rules
+    repeated WagerRule wager_rules = 7; // Rules for wagers and paytables
+}
+
+message WagerRule {
+    string wager_name = 1; // The name (identity) of the wager, unique in a set of rules.
+    int64 min_bet     = 2; // The minimum wager amount.
+    int64 max_bet     = 3; // The maximum wager amount.
+    bool required     = 4; // When true, this wager is required before other wagers can be made.
+    repeated Payline paylines = 5; // How the wager pays out.
+}
+
+message Payline {
+    string bet_group  = 1; // Details fo what part of a paytable is activated.
+    string descriptor = 2; // The name of the line of the paytable.
+    string multiplier = 3; // The payout as a multiple of the wager.
+}
+
+/********************************************************************************************************************
+ * RULES GAME VARIATIONS
+ ********************************************************************************************************************/
+
+message VariantRules {
+    BlackjackRules blackjack = 1; // Blackjack-specific rules, nothing of not blackjack.
+    RouletteRules  roulette  = 2; // Roulette-specific rules, nothing of not roulette.
+    BaccaratRules  baccarat  = 3; // Baccarat-specific rules, nothing of not baccarat.
+}
+
+message BlackjackRules {
+    string variant   = 1; // "standard" or "continuous".
+    uint32 decks     = 2; // Number of decks in the shoe.
+    bool hub_seating = 3; // When true, players can site at the table. True for standard blackjack.
+}
+
+message RouletteRules {
+    string variant                         = 1; // "000" or "far000" (fast action roulette).
+    repeated RouletteWheelStop wheel_stops = 2; // The description of the roulette wheel.
+    repeated RouletteWagerHits wager_hits  = 3; // The description of what bets are paid out from what wheel stops.
+}
+
+message RouletteWheelStop {
+    string name  = 1; // The name of this stop.
+    string color = 2; // The color of this stop.
+}
+
+message RouletteWagerHits {
+    string name          = 1; // Name for wager.
+    repeated string hits = 2; // What stops will trigger a win.
+}
+
+message BaccaratRules {
+    uint32 decks = 1; // Number of decks in the shoe.
+}
+
+/********************************************************************************************************************
+ * TABLE
+ ********************************************************************************************************************/
+
+/**
+ * Table is all the information for the game client to display table activity.
+ */
+message Table {
+    string table_key = 1; // The unique identifier for the table.
+    string rules_key = 2; // The rules being played at this table.
+    string name      = 3; // The name of the table in the player client.
+    string game      = 4; // The game being played. 
+    int32 seat_count = 5; // The number of seats available.
+    int32 open_seats = 6; // How many seats are open
+    string table_state = 7; // The state of the table:
+                            // - "clo" (closed, no plays starting)
+                            // - "ope" (open, plays can start)
+                            // - "pla" (a play is on the table)
+    Play play           = 8; // When set, the current play on the table. Can be empty.
+    repeated Seat seats = 9; // Seats at the table
+    repeated AvailableWager available_wagers = 10; // Available play wagers, as the current player sees them.
+    repeated Choice choices                  = 11; // Available play choices, as the current player sees them.
+    int64 shoe_num      = 12; // The number of shoes in the history of this table.
+    int64 shoe_play_num = 13; // The current play of the current shoe.
+    uint64 auto_run_delay_sec = 14; // The number of seconds before a spoke closes betting on a new play. 
+    uint64 action_timeout_sec = 15; // The timeout for actions on a table
+}
+
+message Seat {
+    int32 seat_num      = 1; // Number of seat, starts with 1
+    bool open           = 2; // Is the seat open?
+    uint64 player_id    = 3; // If the seat is not open, which player is sitting here
+    string display_name = 4; // The player display name at the seat.
+    string image_url    = 5; // The image for the player at the seat.
+}
+
+message AvailableWager {
+    string wager_name = 1; // Name of wager
+    int64 min         = 2; // Minimum bet
+    int64 max         = 3; // Maximum bet
+}
+
+message ActiveWager {
+    uint32 seat_num    = 1; // Seat Number where wager was placed.
+    string wager_name  = 2; // Name of the wager.
+    uint64 amount      = 3; // Amount of the wager.
+    string wager_state = 4; // State of the wager. "ok" for completed wagers, "ini" for wagers not processed yet.
+}
+
+message Resolution {
+    uint32 seat_num        = 1; // Seat Number where wager was placed.
+    string wager_name      = 2; // The wager this resolution is for.
+    string resolution_type = 3; // Type of resolution. "payout", "resolution" (lost), "push"
+    string resolution_name = 4; // Name of the resolution (will usually be the wager name).
+    uint64 amount          = 5; // Amount of the payout if there was a payout.
+}
+
+message Choice {
+    string action    = 1; // The name of the action. Supplied by the context and the game.
+    uint32 step      = 2; // The internal step associated with the choice.
+    uint32 seat_num  = 3; // Seat number.
+    uint32 hand_num  = 4; // The hand at the seat (used in blackjack splits for example).
+    uint64 amount    = 5; // If there is a wager associated with the choice, the amount of the wager.
+}
+
+/**
+ * SimpleTable is a summary of a table for game client lobby display.
+ */
+message SimpleTable {
+    string table_key = 1; // The unique identifier for the table. Table ids are never reused.
+    string name      = 2; // How this table appears in a player and dealer's client.
+    string game      = 3; // The game being played at this table.
+    string variant   = 4; // The game variant played at this table.
+    int32 seat_count = 5; // The number of seats available
+    int32 open_seats = 6; // How many seats are open
+    bool open         = 7; // Is the table open?
+    bool backbetting_available = 8; // Is backbetting available
+}
+
+/********************************************************************************************************************
+ * PLAY
+ ********************************************************************************************************************/
+
+/**
+  * Play is a single play of a table game.
+  */
+message Play {
+    uint64 play_id                     = 1; // The id of the play.
+    string game                        = 2; // Game being played.
+    string state                       = 3; // State of the game-agnostic outer play.
+											// - "initial"   Betting open. Players make their first decisions.
+											// - "running"   The play is running and going through its internal states.
+											// - "resolved"  The play is resolving, no more inputs.
+											// - "completed" The play is completed, no system needs to operate on it anymore (wagers complete)
+    PlayStates play_states             = 4; // Game-specific play state
+    repeated ActiveWager active_wagers = 5; // Active wagers a seen by the current player.
+    repeated Resolution resolutions    = 6; // Wagers that have been resolved as seen by the current player.
+    int64 auto_run_time = 7; // If non-zero, this is the time that the betting is closed and the play runs.
+    int64 shoe_num      = 8; // The number of shoes in the history of this play's table.
+    int64 shoe_play_num = 9; // The what play num of the shoe this play is.
+    int32 active_seat_num = 10; // The number of the seat that is active (starts at 1), zero if none or not relevant to the game.
+    int32 active_hand_num = 11; // The number of the hand of the seat that is active (starts at 1), zero if none or not relevant to the game.
+}
+
+/**
+  * PlaySummary is the distilled summary of a play.
+  */
+message PlaySummary {
+    uint64 play_id  = 1; // The id of the play
+    string game     = 2; // Game type
+    string state    = 3; // State of the game-agnostic outer play (matches values for Play).
+    uint64 shoe_num = 4; // The number of the shoe. 
+    GameVariantPlaySummary summary = 5; // The game-specific data.
+}
+
+/**
+  * GameVariantPlaySummary is the distilled summary of a game-specific play data.
+  */
+message GameVariantPlaySummary {
+    BaccaratPlaySummary baccarat = 1; // Baccarat summary
+    RoulettePlaySummary roulette = 2; // Roulette summary
+    // No blackjack summary.
+}
+
+message BaccaratPlaySummary {
+    string winner = 1; // "player", "banker", "tie".
+    bool player_natural = 2; // True if the player has a natural.
+    bool banker_natural = 3; // True if the banker has a natural.
+    bool player_pair = 4; // True if the player has a pair.
+    bool banker_pair = 5; // True if the banker has a pair.
+}
+
+message RoulettePlaySummary {
+    string wheel_stop = 1; // Where the ball landed.
+}
+
+/**
+  * PlaySeatData is data of who is doing what at a seat of a play. This is part of a stream of aggregate ephemeral
+  * data that is constantly changing, sharing the experience of being at a table with a multitude of players.
+  */
+message PlaySeatData {
+  int64 seat_num         = 1; // The seat num around the "table" of the play. Starting at 1.
+  int64 actions_possible = 2; // The maximum number of actions that can be picked (the number of decision makers at the moment).
+  repeated SeatDataAction actions = 3; // The current contribution of who is doing what at the seat.
+}
+
+/**
+  * SeatDataAction is a an action name and how many players are taking that action at that moment.
+  */
+message SeatDataAction {
+  string action = 1; // The action in question.
+  int64 count   = 2; // The number of players taking the action.
+}
+
+/********************************************************************************************************************
+ * PLAY GAME VARIATIONS
+ ********************************************************************************************************************/
+
+/**
+  * PlayStates are game-specific play states.
+  */
+message PlayStates {
+    BaccaratPlayState  baccarat  = 1; // Baccarat play state, empty if not baccarat.
+    BlackjackPlayState blackjack = 2; // Blackjack play state, empty if not blackjack.
+    RoulettePlayState  roulette  = 3; // Roulette play state, empty if not roulette.
+}
+
+message BaccaratPlayState {
+    string state             = 1; // State of the baccarat-part of play.
+                                  // - "ini" This game has not been dealt yet.
+                                  // - "dea" The game is currently being dealt
+                                  // - "res" All inputs are complete for this game, it can be paid out.
+    BaccaratHand player_hand = 2; // Player's hand.
+    BaccaratHand banker_hand = 3; // Banker's hand.
+}
+
+message BaccaratHand {
+    repeated Card cards    = 1; // The cards of the hand.
+    repeated uint64 scores = 2; // The scores as each card adds to the prior cards. For 
+    uint64 score = 3; // The current score for the hand.
+    bool natural = 4; // True when the hand is a natural.
+    bool pair    = 5; // True when the hand is a pair.
+}
+
+message BlackjackPlayState {
+    string state = 1; // State of the blackjack-part of play.
+                      // - "ini" This game has not been dealt yet.
+                      // - "fir" Initial cards are being dealt
+                      // - "ins" The players need to determine if they want insurance or not.
+                      // - "pla" The players need to determine what their choice is.
+                      // - "mai" Main state of the game, while cards are being dealt
+                      // - "rea" Game is ready to complete
+                      // - "dea" The players are done and the dealer needs their hand complete.
+                      // - "res" All inputs are complete for this game, it can be paid out.
+    BlackjackHand dealer_hand              = 2; // Dealers hand.
+    repeated BlackjackSeatHands seat_hands = 3; // Hands at each position of table.
+    uint64 active_player_id = 4; // Player being dealt to, or with pending action
+    uint32 active_seat_num  = 5; // Active seat number, will be 0 when no player active.
+    uint32 active_hand_num  = 6; // Active hand number at the seat when there are multiple hands.
+}
+
+message BlackjackSeatHands {
+    repeated BlackjackHand hands = 1; // Hands at a seat, could be multiple due to splits.
+}
+
+message BlackjackHand {
+    repeated Card    cards = 1; // Cards in the hand.
+    repeated uint64 scores = 2; // Possible scores for the hand. When there are one or more aces, the are multiple.
+    bool is_blackjack      = 3; // Is the hand a blackjack.
+    bool is_surrender      = 4; // Is the hand a surrender.
+    bool is_timeout        = 5; // Was the outcome forced by a timeout.
+    bool is_bust           = 6; // Did the hand bust?
+}
+
+message RoulettePlayState {
+    string state      = 1; // State of the roulette-part of play.
+                           // - "initial"  Betting is open.
+                           // - "running"  This game is running.
+                           // - "bonuses"  A fast action roullet has the bonuses but not the wheel stop yet.
+                           // - "resolved" All inputs are complete for this game, it can be paid out.
+    string wheel_stop = 2; // The spot of the wheel the ball stopped on.
+    RouletteVariants variants = 3; // Data structures for roulette variants.
+}
+
+message RouletteVariants {
+    RouletteFastAction fast_action = 1; // For fast action variant
+}
+
+message RouletteFastAction {
+    repeated string extra_stops              = 1; // The bonus numbers for fast action roulete.
+    repeated RoulettePatternHit pattern_hits = 2; // Which fast action patters hit.
+}
+
+message RoulettePatternHit {
+    string name             = 1; // Either "bonus", "super", or "mega".
+    repeated string pattern = 2; // The stops on the felt that make up the pattern hit.
+}
+
+/********************************************************************************************************************
+ * BACCARAT ROADS
+ ********************************************************************************************************************/
+
+/**
+  * BaccaratHistory is all the data for a baccarat history display of cards since the beginning of the shoe.
+  */
+message BaccaratHistory {
+    repeated BaccaratPlaySummary bead_plate  = 1; // The pure record of plays from the shoe beginning.
+    repeated BigRoadStreak big_road          = 2; // The record of player/banker streaks.
+    repeated DerivedRoadStreak big_eye_boy   = 3; // The near record of "predictable"/"chaotic" streaks.
+    repeated DerivedRoadStreak small_road    = 4; // The medium record of "predictable"/"chaotic" streaks.
+    repeated DerivedRoadStreak cockroach_pig = 5; // The far record of "predictable"/"chaotic" streaks.
+}
+
+message BigRoadStreak {
+    repeated BigRoadEntry streak = 1; // All the entries of this streak.
+}
+
+message BigRoadEntry {
+    int64 streak_num = 1; // All entries part of the same streak share a streak num, starting with 1.
+    string winner    = 2; // "player", "banker", "tie" ("tie" happens if the first hand of the shoe is a tie).
+    int64 tie_count  = 3; // The number of ties following this entry (or for a "tie", the number of ties that start a shoe).
+}
+
+message DerivedRoadStreak {
+    repeated DerivedRoadEntry streak = 1; // All the entries of this streak.
+}
+
+message DerivedRoadEntry {
+    int64 streak_num = 1; // All entries part of the same streak share a streak num, starting with 1.
+    bool predictable = 2; // Either true (predictable) or false (chaotic).
+}
+
+/********************************************************************************************************************
+ * CARD GAMES
+ ********************************************************************************************************************/
+
+/**
+  * Card is a face-up or face-down card with information on when it was dealt of the deck (for animation purposes).
+  *
+  * Card faces can be:
+  *
+  *   facedown: --
+  *   joker:    Xj Yj
+  *   spades:   As Ks Qs Js Ts 9s 8s 7s 6s 5s 4s 3s 2s
+  *   clubs:    Ac Kc Qc Jc Tc 9c 8c 7c 6c 5c 4c 3c 2c
+  *   hearts:   Ah Kh Qh Jh Th 9h 8h 7h 6h 5h 4h 3h 2h
+  *   diamonds: Ad Kd Qd Jd Td 9d 8d 7d 6d 5d 4d 3d 2d
+  *
+  */
+message Card {
+  uint64 dealt_num = 1; // The order this card came off the deck. "1" is the first dealt card.
+  string face      = 2; // The face of the card, or "--" if the card is face down.
+}

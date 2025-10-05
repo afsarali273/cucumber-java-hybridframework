@@ -1,0 +1,33 @@
+{
+    "SeleniumPracticeTest1":  {
+      "General_Data":
+      {
+        "FirstName": "Company1",
+        "LastName": "Company1",
+        "Country": "Europe"
+      },
+      "Business_Flow":
+      {
+        "Keyword_1": "LaunchSeleniumUrl",
+        "Keyword_2": "VerifyHome",
+        "Keyword_3": "EnterDetails",
+        "Keyword_4": "SubmitDetails"
+      }
+    },
+    "SeleniumPracticeTest2":  {
+      "General_Data":
+        {
+          "FirstName": "Company2",
+          "LastName": "Company2",
+          "Country": "Asia"
+        }
+    },
+    "SeleniumPracticeTest3":  {
+      "General_Data":
+        {
+          "FirstName": "Company3",
+          "LastName": "Company3",
+          "Country": "Europe"
+        }
+    }
+}

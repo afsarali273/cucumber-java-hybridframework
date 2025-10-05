@@ -1,0 +1,17 @@
+Key,Description,Value
+webCrawl,A web crawler identifies all href in a page and proceed crawling based on domain rule set,TRUE
+domainRestrcitionForCrawl,Domains that need not be crawled like exception and restriction,news/;working-at-unilever;facebook.com/;twitter.com/;youtube.com/;linkedin.com/;mailto:
+allowedDomainToCrawl,List of domain to crawl through,/
+filePathForURLlist,If crawling is not required provide a file that conatins full list of URL,NA
+currentDomain,This defines the environment,https://www.bioreference.com/
+outputComparison,Compare current crawled url detail with baseline,FALSE
+baseDomainForComp,domain of baseline,https://www.bioreference.com/
+LightHouseThreshold,enable Lighthouse validation,TRUE
+Performance,Expected min threshold for performacne score,80
+Accessiblity,Expected min threshold for accessiblity score,90
+BestPractice,Expected min threshold for best practice score,80
+SEO,Expected min threshold for SEO score,90
+ProgressiveWebApp,Expected min threshold for progressive web app score,85
+DeadLinkAndRedirectValidation,Enable deadlink and redirect validation,TRUE
+LevelOfCookieAcceptance,Cookie accpetance All or None or Functional or Required ,Performance::Functional
+BaseDomain,BasedDomainThatshoulBe present,bioreference.com

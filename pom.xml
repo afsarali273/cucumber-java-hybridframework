@@ -1,0 +1,500 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com-qualiframe</groupId>
+	<artifactId>qualiframe-maven-testng</artifactId>
+	<version>2.0.1</version>
+	<packaging>jar</packaging>
+	<name>Qualiframe Automation Framework</name>
+	<url>http://maven.apache.org</url>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<dataproviderthreadcount>1</dataproviderthreadcount>
+		<org.apache.maven.plugins.maven-compiler-plugin.version>3.8.1</org.apache.maven.plugins.maven-compiler-plugin.version>
+		<!--		<org.codehaus.mojo.exec-maven-plugin.version>3.0.0</org.codehaus.mojo.exec-maven-plugin.version>-->
+		<org.apache.maven.plugins.maven-antrun-plugin.version>3.0.0</org.apache.maven.plugins.maven-antrun-plugin.version>
+		<aspectj.version>1.8.10</aspectj.version>
+		<extent.report>1.1.0</extent.report>
+		<rest-assured>5.3.0</rest-assured>
+		<qualiframe-components>2.0</qualiframe-components>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<dataproviderthreadcount>1</dataproviderthreadcount>
+		<selenium.standalone>4.8.1</selenium.standalone>
+		<java.client.appium>8.3.0</java.client.appium>
+		<io.cucumber>7.11.2</io.cucumber>
+		<org.testng>7.7.1</org.testng>
+		<org.apache.maven.plugins.maven-compiler-plugin.version>3.8.1</org.apache.maven.plugins.maven-compiler-plugin.version>
+		<!--	//	<org.codehaus.mojo.exec-maven-plugin.version>3.0.0</org.codehaus.mojo.exec-maven-plugin.version>-->
+		<org.apache.maven.plugins.maven-surefire-plugin.version>3.0.0-M5</org.apache.maven.plugins.maven-surefire-plugin.version>
+		<org.apache.maven.plugins.maven-antrun-plugin.version>3.0.0</org.apache.maven.plugins.maven-antrun-plugin.version>
+		<com.aventstack.extentreports-cucumber4-adapter>1.2.1</com.aventstack.extentreports-cucumber4-adapter>
+		<org.apache.poi>5.1.0</org.apache.poi>
+		<org.apache.poi.schemas>4.1.2</org.apache.poi.schemas>
+		<stax.stax-api>1.0.1</stax.stax-api>
+		<org.apache.xmlbeans.xmlbeans>5.0.2</org.apache.xmlbeans.xmlbeans>
+		<io.github.bonigarcia.webdrivermanager>5.3.2</io.github.bonigarcia.webdrivermanager>
+		<aspectj.version>1.8.10</aspectj.version>
+		<skipTests>false</skipTests>
+		<TestConfiguration>Default</TestConfiguration>
+		<software.aws>2.20.46</software.aws>
+	</properties>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>8</source>
+					<target>8</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+
+		<!-- To run modular/keyword Tests -->
+		<profile>
+			<id>runTestNGTests</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<properties>
+				<testNG.suiteXmlFile>src/test/resources/TestNGHybrid.xml</testNG.suiteXmlFile>
+			</properties>
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-antrun-plugin</artifactId>
+							<version>${org.apache.maven.plugins.maven-antrun-plugin.version}</version>
+							<executions>
+								<execution>
+									<id>generate-sources</id>
+									<phase>generate-sources</phase>
+									<configuration>
+										<tasks>
+											<mkdir dir="./target/Reports" />
+										</tasks>
+									</configuration>
+									<goals>
+										<goal>run</goal>
+									</goals>
+								</execution>
+							</executions>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-compiler-plugin</artifactId>
+							<version>${org.apache.maven.plugins.maven-compiler-plugin.version}</version>
+							<configuration>
+								<encoding>UTF-8</encoding>
+								<source>8</source>
+								<target>8</target>
+							</configuration>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-surefire-plugin</artifactId>
+							<version>${org.apache.maven.plugins.maven-surefire-plugin.version}</version>
+							<configuration>
+								<suiteXmlFiles>
+									<suiteXmlFile>${testNG.suiteXmlFile}</suiteXmlFile>
+								</suiteXmlFiles>
+								<argLine>
+									-javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
+								</argLine>
+							</configuration>
+							<dependencies>
+								<dependency>
+									<groupId>org.aspectj</groupId>
+									<artifactId>aspectjweaver</artifactId>
+									<version>${aspectj.version}</version>
+								</dependency>
+							</dependencies>
+							<executions>
+								<execution>
+									<phase>integration-test</phase>
+									<goals>
+										<goal>test</goal>
+									</goals>
+									<configuration>
+										<systemProperties>
+											<systemProperty>
+												<key>ReportPath</key>
+												<value>${project.build.directory}\Reports</value>
+											</systemProperty>
+										</systemProperties>
+									</configuration>
+								</execution>
+							</executions>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
+
+		<!-- To run cucumber BDD Tests -->
+		<profile>
+			<id>runBDDTests</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-compiler-plugin</artifactId>
+							<version>${org.apache.maven.plugins.maven-compiler-plugin.version}</version>
+							<configuration>
+								<source>8</source>
+								<target>8</target>
+							</configuration>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-surefire-plugin</artifactId>
+							<version>${org.apache.maven.plugins.maven-surefire-plugin.version}</version>
+							<configuration>
+								<includes>
+									<include>**/CucumberRunner.java</include>
+								</includes>
+								<systemPropertyVariables>
+									<TestConfiguration>${TestConfiguration}</TestConfiguration>
+								</systemPropertyVariables>
+								<testFailureIgnore>true</testFailureIgnore>
+							</configuration>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
+	</profiles>
+	<dependencies>
+
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+			<version>${aspectj.version}</version>
+		</dependency>
+		<!-- Selenium Dependency -->
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>${selenium.standalone}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.github.bonigarcia</groupId>
+			<artifactId>webdrivermanager</artifactId>
+			<version>${io.github.bonigarcia.webdrivermanager}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.guava</groupId>
+					<artifactId>guava</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>31.1-jre</version>
+		</dependency>
+		<dependency>
+			<groupId>com.codeborne</groupId>
+			<artifactId>phantomjsdriver</artifactId>
+			<version>1.5.0</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.saucelabs/sauce_testng -->
+		<dependency>
+			<!-- https://mvnrepository.com/artifact/com.saucelabs/sauce_bindings -->
+			<groupId>com.saucelabs</groupId>
+			<artifactId>sauce_bindings</artifactId>
+			<version>1.2.0</version>
+		</dependency>
+
+		<!-- Appium Dependency -->
+		<dependency>
+			<groupId>io.appium</groupId>
+			<artifactId>java-client</artifactId>
+			<version>${java.client.appium}</version>
+		</dependency>
+
+		<!-- Appli Tools Dependency -->
+		<!-- https://mvnrepository.com/artifact/com.applitools/eyes-selenium-java3 -->
+		<dependency>
+			<groupId>com.applitools</groupId>
+			<artifactId>eyes-selenium-java3</artifactId>
+			<version>5.0.0</version>
+		</dependency>
+		<!-- Cucumber Dependencies -->
+		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-testng</artifactId>
+			<version>${io.cucumber}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-java</artifactId>
+			<version>${io.cucumber}</version>
+		</dependency>
+
+		<!-- TestNG Dependency -->
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>${org.testng}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Apache POI Dependency -->
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>${org.apache.poi}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>${org.apache.poi}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml-schemas</artifactId>
+			<version>${org.apache.poi.schemas}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>stax</groupId>
+			<artifactId>stax-api</artifactId>
+			<version>${stax.stax-api}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.xmlbeans</groupId>
+			<artifactId>xmlbeans</artifactId>
+			<version>${org.apache.xmlbeans.xmlbeans}</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/io.cucumber/cucumber-jvm -->
+		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-jvm</artifactId>
+			<version>${io.cucumber}</version>
+			<type>pom</type>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/io.cucumber/gherkin -->
+		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>gherkin</artifactId>
+			<version>26.1.0</version>
+		</dependency>
+
+		<!-- Miscellaneous Dependency -->
+		<!-- dependency> <groupId>log4j</groupId> <artifactId>log4j</artifactId>
+			<version>1.2.17</version> </dependency -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>log4j-over-slf4j</artifactId>
+			<version>1.7.32</version>
+		</dependency>
+
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.2.9</version>
+		</dependency>
+		<dependency>
+			<groupId>net.logstash.logback</groupId>
+			<artifactId>logstash-logback-encoder</artifactId>
+			<version>6.6</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+		<!-- dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.17.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>2.17.1</version>
+		</dependency-->
+
+		<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>2.0.7</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple >
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-simple</artifactId>
+			<version>1.7.33</version>
+			<scope>test</scope>
+		</dependency-->
+
+		<!-- Using PicoContainer to share state between steps in a scenario -->
+		<dependency>
+			<groupId>io.cucumber</groupId>
+			<artifactId>cucumber-picocontainer</artifactId>
+			<version>${io.cucumber}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Extent Report Dependency -->
+		<dependency>
+			<groupId>tech.grasshopper</groupId>
+			<artifactId>extentreports-cucumber7-adapter</artifactId>
+			<version>1.12.0</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.hsqldb/hsqldb -->
+		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<version>2.7.1</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.healthmarketscience.jackcess/jackcess -->
+		<dependency>
+			<groupId>com.healthmarketscience.jackcess</groupId>
+			<artifactId>jackcess</artifactId>
+			<version>2.1.8</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/net.sf.ucanaccess/ucanaccess -->
+		<dependency>
+			<groupId>net.sf.ucanaccess</groupId>
+			<artifactId>ucanaccess</artifactId>
+			<version>4.0.2</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/ru.yandex.qatools.ashot/ashot -->
+		<dependency>
+			<groupId>ru.yandex.qatools.ashot</groupId>
+			<artifactId>ashot</artifactId>
+			<version>1.5.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.qameta.allure</groupId>
+			<artifactId>allure-testng</artifactId>
+			<version>2.17.2</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>io.qameta.allure</groupId>
+			<artifactId>allure-cucumber-jvm</artifactId>
+			<version>2.17.2</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc -->
+		<dependency>
+			<groupId>com.microsoft.sqlserver</groupId>
+			<artifactId>mssql-jdbc</artifactId>
+			<version>7.4.1.jre8</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.googlecode.json-simple/json-simple -->
+		<dependency>
+			<groupId>com.googlecode.json-simple</groupId>
+			<artifactId>json-simple</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.everit.json/org.everit.json.schema -->
+		<dependency>
+			<groupId>org.everit.json</groupId>
+			<artifactId>org.everit.json.schema</artifactId>
+			<version>1.5.1</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.jayway.jsonpath/json-path -->
+		<dependency>
+			<groupId>com.jayway.jsonpath</groupId>
+			<artifactId>json-path</artifactId>
+			<version>2.8.0</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.hamcrest/hamcrest-all -->
+		<dependency>
+			<groupId>org.hamcrest</groupId>
+			<artifactId>hamcrest-all</artifactId>
+			<version>1.3</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/io.rest-assured/rest-assured -->
+		<dependency>
+			<groupId>io.rest-assured</groupId>
+			<artifactId>rest-assured</artifactId>
+			<version>${rest-assured}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.15.0-rc1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>regions</artifactId>
+			<version>${software.aws}</version>
+		</dependency>
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>aws-sdk-java</artifactId>
+			<version>${software.aws}</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.amazonaws/aws-java-sdk-devicefarm -->
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-devicefarm</artifactId>
+			<version>1.12.450</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/software.amazon.awssdk/sts -->
+		<dependency>
+			<groupId>software.amazon.awssdk</groupId>
+			<artifactId>sts</artifactId>
+			<version>${software.aws}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-to-slf4j</artifactId>
+			<version>2.8.2</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/io.netty/netty-handler
+		This dependency added for Selenium versions 4.0 and above-->
+		<dependency>
+			<groupId>io.netty</groupId>
+			<artifactId>netty-handler</artifactId>
+			<version>4.1.90.Final</version>
+		</dependency>
+	</dependencies>
+<!--	<distributionManagement>-->
+<!--		<snapshotRepository>-->
+<!--			<id>snapshots</id>-->
+<!--			<name>a0r860tji6jbe-artifactory-primary-0-snapshots</name>-->
+<!--			<url>https://qualitestautomationcoe.jfrog.io/artifactory/qualiframe-libs-snapshot-local</url>-->
+<!--		</snapshotRepository>-->
+<!--	</distributionManagement>-->
+</project>

@@ -1,0 +1,96 @@
+{
+    "TestCase - 024 Equity, Diversity & Inclusion at Unilever": [
+        "\/\/button[contains(text(),\"Planet & Society\") and @class=\"c-header__nav__menu-link  \"]::click",
+        "\/\/button[contains(text(),\"Equity, Diversity & Inclusion at Unilever\") and @class=\"!!                                c-header__nav__sub-menu-link!!                                u-mb-uu-half u-ml-uu-half!!                                lg:u-ml-none!!                                u-py-uu-half!!                                lg:u-py-none!!                                u-pr-uu!!                                !!                                \"]::click",
+        "\/\/button[contains(text(),\"Equity, Diversity & Inclusion at Unilever\") and @class=\"!!                                c-header__nav__sub-menu-link!!                                u-mb-uu-half u-ml-uu-half!!                                lg:u-ml-none!!                                u-py-uu-half!!                                lg:u-py-none!!                                u-pr-uu!!                                is-active!!                                \"]::click"
+    ],
+    "TestCase - 01 Our company": [
+        "\/\/button[contains(text(),\"Our company\") and @class=\"c-header__nav__menu-link  \"]::click"
+    ],
+    "TestCase - 011 Our brands": [
+        "\/\/button[contains(text(),\"Our brands\") and @class=\"c-header__nav__menu-link  \"]::click",
+        "\/\/button[contains(text(),\"Our brands\") and @class=\"c-header__nav__menu-link  is-active\"]::click"
+    ],
+    "TestCase - 04 News": [
+        "\/\/button[contains(text(),\"News\") and @class=\"c-header__nav__menu-link  \"]::click"
+    ],
+    "TestCase - 023 View Equity, Diversity & Inclusion at Unilever": [
+        "\/\/button[contains(text(),\"Planet & Society\") and @class=\"c-header__nav__menu-link  \"]::click",
+        "\/\/button[contains(text(),\"Equity, Diversity & Inclusion at Unilever\") and @class=\"!!                                c-header__nav__sub-menu-link!!                                u-mb-uu-half u-ml-uu-half!!                                lg:u-ml-none!!                                u-py-uu-half!!                                lg:u-py-none!!                                u-pr-uu!!                                !!                                \"]::click",
+        "\/\/span[contains(text(),\"View Equity, Diversity & Inclusion at Unilever\") and @class=\"cta__inner\"]::click"
+    ],
+    "TestCase - 014 View Planet & Society": [
+        "\/\/button[contains(text(),\"Planet & Society\") and @class=\"c-header__nav__menu-link  \"]::click",
+        "\/\/span[contains(text(),\"View Planet & Society\") and @class=\"cta__inner\"]::click"
+    ],
+    "TestCase - 012 View Our brands": [
+        "\/\/button[contains(text(),\"Our brands\") and @class=\"c-header__nav__menu-link  \"]::click",
+        "\/\/span[contains(text(),\"View Our brands\") and @class=\"cta__inner\"]::click"
+    ],
+    "TestCase - 09 Our company": [
+        "\/\/button[contains(text(),\"Our company\") and @class=\"c-header__nav__menu-link  \"]::click",
+        "\/\/button[contains(text(),\"Our company\") and @class=\"c-header__nav__menu-link  is-active\"]::click"
+    ],
+    "TestCase - 013 COP26 \u2013 Together For Our Planet": [
+        "\/\/button[contains(text(),\"Planet & Society\") and @class=\"c-header__nav__menu-link  \"]::click",
+        "\/\/button[contains(text(),\"COP26 \u2013 Together For Our Planet\") and @class=\"!!                                c-header__nav__sub-menu-link!!                                u-mb-uu-half u-ml-uu-half!!                                lg:u-ml-none!!                                u-py-uu-half!!                                lg:u-py-none!!                                u-pr-uu!!                                !!                                \"]::click"
+    ],
+    "TestCase - 05 Careers": [
+        "\/\/button[contains(text(),\"Careers\") and @class=\"c-header__nav__menu-link  \"]::click"
+    ],
+    "TestCase - 08 Contact us": [
+        "\/\/span[contains(text(),\"Contact us\") and @class=\"cta__inner\"]::click"
+    ],
+    "TestCase - 07 View all news": [
+        "\/\/span[contains(text(),\"View all news\") and @class=\"cta__inner\"]::click"
+    ],
+    "TestCase - 022 View COP26 \u2013 Together For Our Planet": [
+        "\/\/button[contains(text(),\"Planet & Society\") and @class=\"c-header__nav__menu-link  \"]::click",
+        "\/\/button[contains(text(),\"COP26 \u2013 Together For Our Planet\") and @class=\"!!                                c-header__nav__sub-menu-link!!                                u-mb-uu-half u-ml-uu-half!!                                lg:u-ml-none!!                                u-py-uu-half!!                                lg:u-py-none!!                                u-pr-uu!!                                !!                                \"]::click",
+        "\/\/span[contains(text(),\"View COP26 \u2013 Together For Our Planet\") and @class=\"cta__inner\"]::click"
+    ],
+    "TestCase - 021 COP26 \u2013 Together For Our Planet": [
+        "\/\/button[contains(text(),\"Planet & Society\") and @class=\"c-header__nav__menu-link  \"]::click",
+        "\/\/button[contains(text(),\"COP26 \u2013 Together For Our Planet\") and @class=\"!!                                c-header__nav__sub-menu-link!!                                u-mb-uu-half u-ml-uu-half!!                                lg:u-ml-none!!                                u-py-uu-half!!                                lg:u-py-none!!                                u-pr-uu!!                                !!                                \"]::click",
+        "\/\/button[contains(text(),\"COP26 \u2013 Together For Our Planet\") and @class=\"!!                                c-header__nav__sub-menu-link!!                                u-mb-uu-half u-ml-uu-half!!                                lg:u-ml-none!!                                u-py-uu-half!!                                lg:u-py-none!!                                u-pr-uu!!                                is-active!!                                \"]::click"
+    ],
+    "TestCase - 06 Blank Text": [
+        "\/\/button[contains(text(),\"Careers\") and @class=\"c-header__nav__menu-link  \"]::click",
+        "\/\/img[contains(text(),\"\") and @class=\"extended-image c-stat-grid__image\"]::click"
+    ],
+    "launch": "https:\/\/www.unilever.co.uk\/",
+    "TestCase - 03 Planet & Society": [
+        "\/\/button[contains(text(),\"Planet & Society\") and @class=\"c-header__nav__menu-link  \"]::click"
+    ],
+    "TestCase - 016 Planet & Society": [
+        "\/\/button[contains(text(),\"Planet & Society\") and @class=\"c-header__nav__menu-link  \"]::click",
+        "\/\/button[contains(text(),\"Planet & Society\") and @class=\"c-header__nav__menu-link  is-active\"]::click"
+    ],
+    "TestCase - 010 View Our company": [
+        "\/\/button[contains(text(),\"Our company\") and @class=\"c-header__nav__menu-link  \"]::click",
+        "\/\/span[contains(text(),\"View Our company\") and @class=\"cta__inner\"]::click"
+    ],
+    "TestCase - 015 Equity, Diversity & Inclusion at Unilever": [
+        "\/\/button[contains(text(),\"Planet & Society\") and @class=\"c-header__nav__menu-link  \"]::click",
+        "\/\/button[contains(text(),\"Equity, Diversity & Inclusion at Unilever\") and @class=\"!!                                c-header__nav__sub-menu-link!!                                u-mb-uu-half u-ml-uu-half!!                                lg:u-ml-none!!                                u-py-uu-half!!                                lg:u-py-none!!                                u-pr-uu!!                                !!                                \"]::click"
+    ],
+    "TestCase - 017 News": [
+        "\/\/button[contains(text(),\"News\") and @class=\"c-header__nav__menu-link  \"]::click",
+        "\/\/button[contains(text(),\"News\") and @class=\"c-header__nav__menu-link  is-active\"]::click"
+    ],
+    "TestCase - 019 Visit Unilever Careers site": [
+        "\/\/button[contains(text(),\"Careers\") and @class=\"c-header__nav__menu-link  \"]::click",
+        "\/\/span[contains(text(),\"Visit Unilever Careers site\") and @class=\"cta__inner\"]::click"
+    ],
+    "TestCase - 02 Our brands": [
+        "\/\/button[contains(text(),\"Our brands\") and @class=\"c-header__nav__menu-link  \"]::click"
+    ],
+    "TestCase - 018 View News": [
+        "\/\/button[contains(text(),\"News\") and @class=\"c-header__nav__menu-link  \"]::click",
+        "\/\/span[contains(text(),\"View News\") and @class=\"cta__inner\"]::click"
+    ],
+    "TestCase - 020 Careers": [
+        "\/\/button[contains(text(),\"Careers\") and @class=\"c-header__nav__menu-link  \"]::click",
+        "\/\/button[contains(text(),\"Careers\") and @class=\"c-header__nav__menu-link  is-active\"]::click"
+    ]
+}

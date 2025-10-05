@@ -1,0 +1,4 @@
+TC_ID,Iteration,SubIteration,FirstName,LastName,Country,Name,Salary,Age
+SeleniumPracticeTest1,1,1,Company1,Company1,Europe,Sun,1000,23
+SeleniumPracticeTest2,1,1,Company2,Company2,Asia,,,
+SeleniumPracticeTest3,1,1,Company3,Company3,Europe,,,

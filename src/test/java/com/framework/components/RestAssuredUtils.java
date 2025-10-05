@@ -468,4 +468,194 @@ public class RestAssuredUtils extends GenericResuableComponents {
 
 	}
 
+	// ========== USER-FRIENDLY WRAPPER METHODS ==========
+	
+	/**
+	 * Simplified GET request
+	 */
+	public ValidatableResponse get(String url) {
+		return sendNReceive(url, SERVICEMETHOD.GET, null, 200);
+	}
+	
+	/**
+	 * GET request with custom status code
+	 */
+	public ValidatableResponse get(String url, int statusCode) {
+		return sendNReceive(url, SERVICEMETHOD.GET, null, statusCode);
+	}
+	
+	/**
+	 * GET request with headers
+	 */
+	public ValidatableResponse get(String url, Map<String, String> headers) {
+		return sendNReceive(url, SERVICEMETHOD.GET, headers, 200);
+	}
+	
+	/**
+	 * Simple POST request with JSON body
+	 */
+	public ValidatableResponse post(String url, String jsonBody) {
+		return sendNReceive(url, SERVICEMETHOD.POST, SERVICEFORMAT.JSON, jsonBody, null, 200);
+	}
+	
+	/**
+	 * POST request with JSON body and custom status code
+	 */
+	public ValidatableResponse post(String url, String jsonBody, int statusCode) {
+		return sendNReceive(url, SERVICEMETHOD.POST, SERVICEFORMAT.JSON, jsonBody, null, statusCode);
+	}
+	
+	/**
+	 * PUT request with JSON body
+	 */
+	public ValidatableResponse put(String url, String jsonBody) {
+		return sendNReceive(url, SERVICEMETHOD.PUT, SERVICEFORMAT.JSON, jsonBody, null, 200);
+	}
+	
+	/**
+	 * PUT request with JSON body and custom status code
+	 */
+	public ValidatableResponse put(String url, String jsonBody, int statusCode) {
+		return sendNReceive(url, SERVICEMETHOD.PUT, SERVICEFORMAT.JSON, jsonBody, null, statusCode);
+	}
+	
+	/**
+	 * DELETE request
+	 */
+	public ValidatableResponse delete(String url) {
+		return sendNReceive(url, SERVICEMETHOD.DELETE, null, 200);
+	}
+	
+	/**
+	 * DELETE request with custom status code
+	 */
+	public ValidatableResponse delete(String url, int statusCode) {
+		return sendNReceive(url, SERVICEMETHOD.DELETE, null, statusCode);
+	}
+	
+	/**
+	 * Simple body assertion
+	 */
+	public boolean assertBody(ValidatableResponse response, String expectedBody) {
+		return assertIt("", response, ASSERT_RESPONSE.BODY, "", expectedBody, COMPARISON.IS_EQUALS);
+	}
+	
+	/**
+	 * Simple tag assertion
+	 */
+	public boolean assertTag(ValidatableResponse response, String tag, String expectedValue) {
+		return assertIt("", response, ASSERT_RESPONSE.TAG, tag, expectedValue, COMPARISON.IS_EQUALS);
+	}
+	
+	/**
+	 * Tag assertion with comparison type
+	 */
+	public boolean assertTag(ValidatableResponse response, String tag, String expectedValue, COMPARISON comparison) {
+		return assertIt("", response, ASSERT_RESPONSE.TAG, tag, expectedValue, comparison);
+	}
+	
+	/**
+	 * Header assertion
+	 */
+	public boolean assertHeader(ValidatableResponse response, String expectedHeader) {
+		return assertIt("", response, ASSERT_RESPONSE.HEADER, "", expectedHeader, COMPARISON.IS_EXISTS);
+	}
+	
+	/**
+	 * Multiple tag assertions in one call
+	 */
+	public boolean assertTags(ValidatableResponse response, String[]... assertions) {
+		boolean allPassed = true;
+		for (String[] assertion : assertions) {
+			if (assertion.length >= 2) {
+				COMPARISON comp = assertion.length > 2 ? COMPARISON.valueOf(assertion[2]) : COMPARISON.IS_EQUALS;
+				if (!assertTag(response, assertion[0], assertion[1], comp)) {
+					allPassed = false;
+				}
+			}
+		}
+		return allPassed;
+	}
+	
+	/**
+	 * Fluent API builder for complex requests
+	 */
+	public RequestBuilder request(String url) {
+		return new RequestBuilder(url, this);
+	}
+	
+	public static class RequestBuilder {
+		private String url;
+		private SERVICEMETHOD method = SERVICEMETHOD.GET;
+		private String body;
+		private SERVICEFORMAT format = SERVICEFORMAT.JSON;
+		private Map<String, String> headers;
+		private int statusCode = 200;
+		private RestAssuredUtils utils;
+		
+		public RequestBuilder(String url, RestAssuredUtils utils) {
+			this.url = url;
+			this.utils = utils;
+		}
+		
+		public RequestBuilder method(SERVICEMETHOD method) {
+			this.method = method;
+			return this;
+		}
+		
+		public RequestBuilder get() {
+			this.method = SERVICEMETHOD.GET;
+			return this;
+		}
+		
+		public RequestBuilder post() {
+			this.method = SERVICEMETHOD.POST;
+			return this;
+		}
+		
+		public RequestBuilder put() {
+			this.method = SERVICEMETHOD.PUT;
+			return this;
+		}
+		
+		public RequestBuilder delete() {
+			this.method = SERVICEMETHOD.DELETE;
+			return this;
+		}
+		
+		public RequestBuilder body(String body) {
+			this.body = body;
+			return this;
+		}
+		
+		public RequestBuilder json(String jsonBody) {
+			this.body = jsonBody;
+			this.format = SERVICEFORMAT.JSON;
+			return this;
+		}
+		
+		public RequestBuilder xml(String xmlBody) {
+			this.body = xmlBody;
+			this.format = SERVICEFORMAT.XML;
+			return this;
+		}
+		
+		public RequestBuilder headers(Map<String, String> headers) {
+			this.headers = headers;
+			return this;
+		}
+		
+		public RequestBuilder expectStatus(int statusCode) {
+			this.statusCode = statusCode;
+			return this;
+		}
+		
+		public ValidatableResponse send() {
+			if (method == SERVICEMETHOD.GET || method == SERVICEMETHOD.DELETE) {
+				return utils.sendNReceive(url, method, headers, statusCode);
+			}
+			return utils.sendNReceive(url, method, format, body, headers, statusCode);
+		}
+	}
+
 }

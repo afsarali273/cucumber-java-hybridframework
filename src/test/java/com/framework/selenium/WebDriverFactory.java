@@ -83,7 +83,10 @@ public class WebDriverFactory {
 		Browser browser = testParameters.getBrowser();
 		switch (browser) {
 		case CHROME:
-			WebDriverManager.chromedriver().setup();
+			System.setProperty("webdriver.chrome.driver", "/usr/local/bin/chromedriver");
+
+			//WebDriverManager.chromedriver().browserVersion("141").forceDownload().setup();
+			//WebDriverManager.chromedriver().setup();
 
 			@SuppressWarnings("rawtypes")
 	//		AbstractDriverOptions chrome;
@@ -129,6 +132,7 @@ public class WebDriverFactory {
 //			prefs.put("plugins.always_open_pdf_externally", true);
 //			prefs.put("profile.default_content_setting_values.automatic_downloads", 1);
 //			chrome.setExperimentalOption("prefs", prefs);
+
 			driver = new ChromeDriver(chrome);
 			break;
 
@@ -305,8 +309,7 @@ public class WebDriverFactory {
 		ChromeOptions options = getEmulatedChromeDriverCapabilities(deviceName);
 
 		properties = Settings.getInstance();
-		System.setProperty("webdriver.chrome.driver", properties.getProperty("ChromeDriverPath"));
-
+		WebDriverManager.chromedriver().setup();
 		return new ChromeDriver(options);
 	}
 
@@ -375,12 +378,8 @@ public class WebDriverFactory {
 		ChromeOptions options = getEmulatedChromeDriverCapabilities(deviceWidth, deviceHeight,
 				devicePixelRatio, userAgent);
 
-//		DesiredCapabilities desiredCapabilities = getEmulatedChromeDriverCapabilities(deviceWidth, deviceHeight,
-//				devicePixelRatio, userAgent);
-
 		properties = Settings.getInstance();
-		System.setProperty("webdriver.chrome.driver", properties.getProperty("ChromeDriverPath"));
-
+		WebDriverManager.chromedriver().setup();
 		return new ChromeDriver(options);
 	}
 

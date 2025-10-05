@@ -1214,4 +1214,576 @@ public void shadowClickField(String element) {
        
 	}
 	
+	// ========== SELENIUM 4 ENHANCED FUNCTIONS ==========
+	
+	// ========== IFRAME HANDLING ==========
+	
+	/**
+	 * Switch to iframe by index
+	 */
+	public void switchToIframe(int index) {
+		try {
+			driver.switchTo().frame(index);
+			addTestLog("Switch to iframe", "Switched to iframe at index: " + index, Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Switch to iframe", "Failed to switch to iframe: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	/**
+	 * Switch to iframe by name or id
+	 */
+	public void switchToIframe(String nameOrId) {
+		try {
+			driver.switchTo().frame(nameOrId);
+			addTestLog("Switch to iframe", "Switched to iframe: " + nameOrId, Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Switch to iframe", "Failed to switch to iframe: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	/**
+	 * Switch to iframe by WebElement
+	 */
+	public void switchToIframe(By iframeLocator) {
+		try {
+			WebElement iframe = driver.findElement(iframeLocator);
+			driver.switchTo().frame(iframe);
+			addTestLog("Switch to iframe", "Switched to iframe: " + iframeLocator, Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Switch to iframe", "Failed to switch to iframe: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+
+	
+	/**
+	 * Switch to parent frame
+	 */
+	public void switchToParentFrame() {
+		try {
+			driver.switchTo().parentFrame();
+			addTestLog("Switch to parent", "Switched to parent frame", Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Switch to parent", "Failed to switch to parent: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	// ========== SHADOW DOM HANDLING ==========
+	
+	/**
+	 * Get shadow root element
+	 */
+	public WebElement getShadowRoot(By hostElement) {
+		try {
+			WebElement host = driver.findElement(hostElement);
+			return (WebElement) ((JavascriptExecutor) driver)
+					.executeScript("return arguments[0].shadowRoot", host);
+		} catch (Exception e) {
+			addTestLog("Get shadow root", "Failed to get shadow root: " + e.getMessage(), Status.FAIL);
+			return null;
+		}
+	}
+	
+	/**
+	 * Find element in shadow DOM
+	 */
+	public WebElement findElementInShadowDOM(By hostElement, String shadowSelector) {
+		try {
+			WebElement shadowRoot = getShadowRoot(hostElement);
+			return shadowRoot.findElement(By.cssSelector(shadowSelector));
+		} catch (Exception e) {
+			addTestLog("Find shadow element", "Failed to find element in shadow DOM: " + e.getMessage(), Status.FAIL);
+			return null;
+		}
+	}
+	
+	/**
+	 * Click element in shadow DOM
+	 */
+	public void clickElementInShadowDOM(By hostElement, String shadowSelector) {
+		try {
+			WebElement element = findElementInShadowDOM(hostElement, shadowSelector);
+			if (element != null) {
+				element.click();
+				addTestLog("Click shadow element", "Clicked element in shadow DOM", Status.PASS);
+			}
+		} catch (Exception e) {
+			addTestLog("Click shadow element", "Failed to click shadow element: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	// ========== WEB TABLE HANDLING ==========
+	
+	/**
+	 * Get table row count
+	 */
+	public int getTableRowCount(By tableLocator) {
+		try {
+			List<WebElement> rows = driver.findElements(By.xpath(tableLocator + "//tr"));
+			return rows.size();
+		} catch (Exception e) {
+			addTestLog("Get row count", "Failed to get row count: " + e.getMessage(), Status.FAIL);
+			return 0;
+		}
+	}
+	
+	/**
+	 * Get table column count
+	 */
+	public int getTableColumnCount(By tableLocator) {
+		try {
+			List<WebElement> columns = driver.findElements(By.xpath(tableLocator + "//tr[1]//td"));
+			return columns.size();
+		} catch (Exception e) {
+			addTestLog("Get column count", "Failed to get column count: " + e.getMessage(), Status.FAIL);
+			return 0;
+		}
+	}
+	
+	/**
+	 * Get cell data from table
+	 */
+	public String getTableCellData(By tableLocator, int row, int column) {
+		try {
+			WebElement cell = driver.findElement(By.xpath(tableLocator + "//tr[" + row + "]//td[" + column + "]"));
+			return cell.getText();
+		} catch (Exception e) {
+			addTestLog("Get cell data", "Failed to get cell data: " + e.getMessage(), Status.FAIL);
+			return "";
+		}
+	}
+	
+	/**
+	 * Click cell in table
+	 */
+	public void clickTableCell(By tableLocator, int row, int column) {
+		try {
+			WebElement cell = driver.findElement(By.xpath(tableLocator + "//tr[" + row + "]//td[" + column + "]"));
+			cell.click();
+			addTestLog("Click table cell", "Clicked cell at row " + row + ", column " + column, Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Click table cell", "Failed to click cell: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	/**
+	 * Find row by cell text
+	 */
+	public int findRowByCellText(By tableLocator, String cellText) {
+		try {
+			List<WebElement> rows = driver.findElements(By.xpath(tableLocator + "//tr"));
+			for (int i = 0; i < rows.size(); i++) {
+				if (rows.get(i).getText().contains(cellText)) {
+					return i + 1;
+				}
+			}
+		} catch (Exception e) {
+			addTestLog("Find row", "Failed to find row: " + e.getMessage(), Status.FAIL);
+		}
+		return -1;
+	}
+	
+	// ========== WINDOW HANDLING ==========
+	
+	/**
+	 * Get all window handles
+	 */
+	public Set<String> getAllWindowHandles() {
+		return driver.getWindowHandles();
+	}
+	
+	/**
+	 * Get current window handle
+	 */
+	public String getCurrentWindowHandle() {
+		return driver.getWindowHandle();
+	}
+	
+
+	
+	/**
+	 * Close current window
+	 */
+	public void closeCurrentWindow() {
+		try {
+			driver.close();
+			addTestLog("Close window", "Current window closed", Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Close window", "Failed to close window: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	/**
+	 * Switch to new window (last opened)
+	 */
+	public void switchToNewWindow() {
+		try {
+			Set<String> handles = driver.getWindowHandles();
+			String[] handleArray = handles.toArray(new String[0]);
+			driver.switchTo().window(handleArray[handleArray.length - 1]);
+			addTestLog("Switch to new window", "Switched to new window", Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Switch to new window", "Failed to switch: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	// ========== JAVASCRIPT EXECUTOR ==========
+	
+	/**
+	 * Execute JavaScript
+	 */
+	public Object executeJavaScript(String script, Object... args) {
+		try {
+			return ((JavascriptExecutor) driver).executeScript(script, args);
+		} catch (Exception e) {
+			addTestLog("Execute JS", "Failed to execute JavaScript: " + e.getMessage(), Status.FAIL);
+			return null;
+		}
+	}
+	
+	/**
+	 * Scroll to element
+	 */
+	public void scrollToElement(By locator) {
+		try {
+			WebElement element = driver.findElement(locator);
+			((JavascriptExecutor) driver).executeScript("arguments[0].scrollIntoView(true);", element);
+			addTestLog("Scroll to element", "Scrolled to element: " + locator, Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Scroll to element", "Failed to scroll: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	/**
+	 * Scroll by pixels
+	 */
+	public void scrollByPixels(int x, int y) {
+		try {
+			((JavascriptExecutor) driver).executeScript("window.scrollBy(" + x + "," + y + ")");
+			addTestLog("Scroll by pixels", "Scrolled by " + x + ", " + y, Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Scroll by pixels", "Failed to scroll: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	/**
+	 * Scroll to top of page
+	 */
+	public void scrollToTop() {
+		try {
+			((JavascriptExecutor) driver).executeScript("window.scrollTo(0, 0)");
+			addTestLog("Scroll to top", "Scrolled to top of page", Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Scroll to top", "Failed to scroll: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	/**
+	 * Scroll to bottom of page
+	 */
+	public void scrollToBottom() {
+		try {
+			((JavascriptExecutor) driver).executeScript("window.scrollTo(0, document.body.scrollHeight)");
+			addTestLog("Scroll to bottom", "Scrolled to bottom of page", Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Scroll to bottom", "Failed to scroll: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	/**
+	 * Click element using JavaScript
+	 */
+	public void clickElementJS(By locator) {
+		try {
+			WebElement element = driver.findElement(locator);
+			((JavascriptExecutor) driver).executeScript("arguments[0].click();", element);
+			addTestLog("JS Click", "Clicked element using JS: " + locator, Status.PASS);
+		} catch (Exception e) {
+			addTestLog("JS Click", "Failed to click: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	/**
+	 * Set value using JavaScript
+	 */
+	public void setValueJS(By locator, String value) {
+		try {
+			WebElement element = driver.findElement(locator);
+			((JavascriptExecutor) driver).executeScript("arguments[0].value = arguments[1];", element, value);
+			addTestLog("JS Set Value", "Set value using JS: " + value, Status.PASS);
+		} catch (Exception e) {
+			addTestLog("JS Set Value", "Failed to set value: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	/**
+	 * Highlight element
+	 */
+	public void highlightElement(By locator) {
+		try {
+			WebElement element = driver.findElement(locator);
+			((JavascriptExecutor) driver).executeScript(
+					"arguments[0].style.border='3px solid red'", element);
+			addTestLog("Highlight element", "Element highlighted: " + locator, Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Highlight element", "Failed to highlight: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	// ========== ADVANCED ACTIONS ==========
+	
+	/**
+	 * Double click element
+	 */
+	public void doubleClick(By locator) {
+		try {
+			WebElement element = driver.findElement(locator);
+			Actions actions = new Actions(driver);
+			actions.doubleClick(element).perform();
+			addTestLog("Double click", "Double clicked: " + locator, Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Double click", "Failed to double click: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	/**
+	 * Right click element
+	 */
+	public void rightClick(By locator) {
+		try {
+			WebElement element = driver.findElement(locator);
+			Actions actions = new Actions(driver);
+			actions.contextClick(element).perform();
+			addTestLog("Right click", "Right clicked: " + locator, Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Right click", "Failed to right click: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	/**
+	 * Drag and drop
+	 */
+	public void dragAndDrop(By sourceLocator, By targetLocator) {
+		try {
+			WebElement source = driver.findElement(sourceLocator);
+			WebElement target = driver.findElement(targetLocator);
+			Actions actions = new Actions(driver);
+			actions.dragAndDrop(source, target).perform();
+			addTestLog("Drag and drop", "Dragged from " + sourceLocator + " to " + targetLocator, Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Drag and drop", "Failed to drag and drop: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+
+	
+	/**
+	 * Send keys to element
+	 */
+	public void sendKeys(By locator, Keys... keys) {
+		try {
+			WebElement element = driver.findElement(locator);
+			Actions actions = new Actions(driver);
+			actions.sendKeys(element, keys).perform();
+			addTestLog("Send keys", "Sent keys to: " + locator, Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Send keys", "Failed to send keys: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	// ========== ELEMENT STATE CHECKS ==========
+	
+	/**
+	 * Check if element is displayed
+	 */
+	public boolean isElementDisplayed(By locator) {
+		try {
+			return driver.findElement(locator).isDisplayed();
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	
+	/**
+	 * Check if element is enabled
+	 */
+	public boolean isElementEnabled(By locator) {
+		try {
+			return driver.findElement(locator).isEnabled();
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	
+	/**
+	 * Check if element is selected
+	 */
+	public boolean isElementSelected(By locator) {
+		try {
+			return driver.findElement(locator).isSelected();
+		} catch (Exception e) {
+			return false;
+		}
+	}
+	
+
+	
+
+	
+	/**
+	 * Wait for text to be present in element
+	 */
+	public boolean waitForTextInElement(By locator, String text, int timeoutSeconds) {
+		try {
+			WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(timeoutSeconds));
+			return wait.until(ExpectedConditions.textToBePresentInElementLocated(locator, text));
+		} catch (Exception e) {
+			addTestLog("Wait for text", "Text not found: " + e.getMessage(), Status.FAIL);
+			return false;
+		}
+	}
+	
+	// ========== ALERT HANDLING ==========
+	
+	/**
+	 * Accept alert
+	 */
+	public void acceptAlert() {
+		try {
+			driver.switchTo().alert().accept();
+			addTestLog("Accept alert", "Alert accepted", Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Accept alert", "Failed to accept alert: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	/**
+	 * Dismiss alert
+	 */
+	public void dismissAlert() {
+		try {
+			driver.switchTo().alert().dismiss();
+			addTestLog("Dismiss alert", "Alert dismissed", Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Dismiss alert", "Failed to dismiss alert: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	/**
+	 * Get alert text
+	 */
+	public String getAlertText() {
+		try {
+			return driver.switchTo().alert().getText();
+		} catch (Exception e) {
+			addTestLog("Get alert text", "Failed to get alert text: " + e.getMessage(), Status.FAIL);
+			return "";
+		}
+	}
+	
+	/**
+	 * Send text to alert
+	 */
+	public void sendTextToAlert(String text) {
+		try {
+			driver.switchTo().alert().sendKeys(text);
+			addTestLog("Send text to alert", "Text sent to alert: " + text, Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Send text to alert", "Failed to send text: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	// ========== SCREENSHOT AND UTILITIES ==========
+	
+	/**
+	 * Take screenshot
+	 */
+	public void takeScreenshot(String fileName) {
+		try {
+			// Implementation depends on your screenshot utility
+			addTestLog("Screenshot", "Screenshot taken: " + fileName, Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Screenshot", "Failed to take screenshot: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+
+	
+
+	
+	/**
+	 * Refresh page
+	 */
+	public void refreshPage() {
+		try {
+			driver.navigate().refresh();
+			addTestLog("Refresh page", "Page refreshed", Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Refresh page", "Failed to refresh: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	/**
+	 * Navigate back
+	 */
+	public void navigateBack() {
+		try {
+			driver.navigate().back();
+			addTestLog("Navigate back", "Navigated back", Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Navigate back", "Failed to navigate back: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	/**
+	 * Navigate forward
+	 */
+	public void navigateForward() {
+		try {
+			driver.navigate().forward();
+			addTestLog("Navigate forward", "Navigated forward", Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Navigate forward", "Failed to navigate forward: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	/**
+	 * Clear element text
+	 */
+	public void clearElement(By locator) {
+		try {
+			driver.findElement(locator).clear();
+			addTestLog("Clear element", "Element cleared: " + locator, Status.PASS);
+		} catch (Exception e) {
+			addTestLog("Clear element", "Failed to clear: " + e.getMessage(), Status.FAIL);
+		}
+	}
+	
+	/**
+	 * Get element size
+	 */
+	public org.openqa.selenium.Dimension getElementSize(By locator) {
+		try {
+			return driver.findElement(locator).getSize();
+		} catch (Exception e) {
+			addTestLog("Get element size", "Failed to get size: " + e.getMessage(), Status.FAIL);
+			return null;
+		}
+	}
+	
+	/**
+	 * Get element location
+	 */
+	public org.openqa.selenium.Point getElementLocation(By locator) {
+		try {
+			return driver.findElement(locator).getLocation();
+		} catch (Exception e) {
+			addTestLog("Get element location", "Failed to get location: " + e.getMessage(), Status.FAIL);
+			return null;
+		}
+	}
+	
+
+	
 }

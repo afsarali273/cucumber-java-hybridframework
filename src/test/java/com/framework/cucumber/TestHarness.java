@@ -186,7 +186,7 @@ public class TestHarness {
                           (DriverManager.getWebDriver() != null)    {
                             CloudPlatformWebDriverFactory.getShareableLink((RemoteWebDriver) DriverManager.getWebDriver());
                             ((JavascriptExecutor) DriverManager.getWebDriver())
-                                    .executeScript("sauce:job-result=" + scenario.getStatus().toString().toLowerCase());
+                                    .executeScript(String.format("sauce:job-result=%s",  scenario.getStatus().toString().toLowerCase()));
                         }
                     } catch (InvalidKeyException e) {
                         // TODO Auto-generated catch block

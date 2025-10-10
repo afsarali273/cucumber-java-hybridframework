@@ -3,6 +3,7 @@ package com.framework.playwright;
 import java.util.Properties;
 import com.framework.components.FrameworkException;
 import com.framework.components.Settings;
+import com.framework.cucumber.DriverManager;
 import com.framework.selenium.SeleniumTestParameters;
 import com.microsoft.playwright.*;
 

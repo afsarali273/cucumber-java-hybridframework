@@ -18,7 +18,7 @@ package com.framework.cucumber;
 import java.time.Duration;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
-
+import com.microsoft.playwright.Browser;
 import com.framework.selenium.*;
 import io.appium.java_client.windows.WindowsDriver;
 import org.openqa.selenium.WebDriver;
@@ -28,6 +28,8 @@ import com.framework.components.ToolName;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import io.appium.java_client.AppiumDriver;
+import com.microsoft.playwright.*;
+import com.framework.playwright.PlaywrightDriverFactory;
 
 /**
  * A generic WebDriver manager, which handles multiple instances of WebDriver.
@@ -45,6 +47,13 @@ public class DriverManager {
 	private static ThreadLocal<SeleniumTestParameters> testParameters = new ThreadLocal<SeleniumTestParameters>();
 	@SuppressWarnings("rawtypes")
 	private static ThreadLocal<AppiumDriver> appiumDriver = new ThreadLocal<AppiumDriver>();
+	
+	// Playwright objects
+	private static ThreadLocal<Playwright> playwright = new ThreadLocal<Playwright>();
+	private static ThreadLocal<com.microsoft.playwright.Browser> browser = new ThreadLocal<com.microsoft.playwright.Browser>();
+	private static ThreadLocal<BrowserContext> context = new ThreadLocal<BrowserContext>();
+	private static ThreadLocal<Page> page = new ThreadLocal<Page>();
+	
 	private static Properties properties = Settings.getInstance();
 	private static Properties mobileProperties = Settings.getMobilePropertiesInstance();
 	static Logger log;
@@ -102,6 +111,129 @@ public class DriverManager {
 	public static void setWindowsDriver(WindowsDriver driver) {
 		driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(20));
 		DriverManager.windowsDriver.set(driver);
+	}
+	
+	// ========== PLAYWRIGHT DRIVER METHODS ==========
+	
+	/**
+	 * Function to return the Playwright object
+	 * 
+	 * @return Instance of the {@link Playwright} object
+	 */
+	public static Playwright getPlaywright() {
+		return playwright.get();
+	}
+	
+	/**
+	 * Function to set the Playwright object
+	 * 
+	 * @param playwrightInstance
+	 */
+	public static void setPlaywright(Playwright playwrightInstance) {
+		DriverManager.playwright.set(playwrightInstance);
+	}
+	
+	/**
+	 * Function to return the Browser object
+	 * 
+	 * @return Instance of the {@link Browser} object
+	 */
+	public static com.microsoft.playwright.Browser getBrowser() {
+		return browser.get();
+	}
+	
+	/**
+	 * Function to set the Browser object
+	 * 
+	 * @param browserInstance
+	 */
+	public static void setBrowser(Browser browserInstance) {
+		DriverManager.browser.set(browserInstance);
+	}
+	
+	/**
+	 * Function to return the BrowserContext object
+	 * 
+	 * @return Instance of the {@link BrowserContext} object
+	 */
+	public static BrowserContext getBrowserContext() {
+		return context.get();
+	}
+	
+	/**
+	 * Function to set the BrowserContext object
+	 * 
+	 * @param contextInstance
+	 */
+	public static void setBrowserContext(BrowserContext contextInstance) {
+		DriverManager.context.set(contextInstance);
+	}
+	
+	/**
+	 * Function to return the Page object
+	 * 
+	 * @return Instance of the {@link Page} object
+	 */
+	public static Page getPage() {
+		return page.get();
+	}
+	
+	/**
+	 * Function to set the Page object
+	 * 
+	 * @param pageInstance
+	 */
+	public static void setPage(Page pageInstance) {
+		DriverManager.page.set(pageInstance);
+	}
+	
+	/**
+	 * Function to initialize Playwright driver
+	 * 
+	 * @param testParameters
+	 */
+	public static void initializePlaywright(SeleniumTestParameters testParameters) {
+		if (playwright.get() == null) {
+			Playwright playwrightInstance = Playwright.create();
+			setPlaywright(playwrightInstance);
+			
+			Browser browserInstance = PlaywrightDriverFactory.createBrowserInstance(testParameters);
+			setBrowser(browserInstance);
+			
+			BrowserContext contextInstance = PlaywrightDriverFactory.createBrowserContext(browserInstance);
+			setBrowserContext(contextInstance);
+			
+			Page pageInstance = PlaywrightDriverFactory.createPage(contextInstance);
+			setPage(pageInstance);
+		}
+	}
+	
+	/**
+	 * Function to close Playwright resources
+	 */
+	public static void closePlaywrightResources() {
+		try {
+			if (page.get() != null && !page.get().isClosed()) {
+				page.get().close();
+			}
+			if (context.get() != null) {
+				context.get().close();
+			}
+			if (browser.get() != null) {
+				browser.get().close();
+			}
+			if (playwright.get() != null) {
+				playwright.get().close();
+			}
+			
+			// Clear ThreadLocal variables
+			page.remove();
+			context.remove();
+			browser.remove();
+			playwright.remove();
+		} catch (Exception e) {
+			log.error("Error closing Playwright resources: " + e.getMessage());
+		}
 	}
 	/**
 	 * Function to set the SeleniumTestParameters

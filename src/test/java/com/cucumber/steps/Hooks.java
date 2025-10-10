@@ -52,8 +52,10 @@ public class Hooks {
 		testHarness = new TestHarness();
 		DriverManager.getTestParameters().setScenario(scenario);
 		
-		// Skip Selenium driver initialization for Playwright tests
-		if (!isPlaywrightExecution()) {
+		// Initialize Playwright or Selenium driver based on configuration
+		if (isPlaywrightExecution()) {
+			DriverManager.initializePlaywright(DriverManager.getTestParameters());
+		} else {
 			testHarness.invokeDriver(scenario);
 			if(!(DriverManager.getTestParameters().getExecutionMode().toString().equalsIgnoreCase("SAUCELABS")))
 			{
@@ -127,8 +129,8 @@ public class Hooks {
 	
 	private void takePlaywrightScreenshot(Scenario scenario) {
 		try {
-			// Get Playwright page from step definition
-			Page page = getPlaywrightPage();
+			// Get Playwright page from DriverManager
+			Page page = DriverManager.getPage();
 			if (page != null) {
 				// Wait for page to be ready
 				page.waitForLoadState(com.microsoft.playwright.options.LoadState.NETWORKIDLE);
@@ -146,10 +148,6 @@ public class Hooks {
 				// Screenshot failed
 			}
 		}
-	}
-	
-	private Page getPlaywrightPage() {
-		return page;
 	}
 
 	/**
@@ -173,50 +171,16 @@ public class Hooks {
 	public void tearDown(Scenario scenario) throws IOException {
 		// Close Playwright if it was used
 		if (isPlaywrightExecution()) {
-			closePlaywrightResources();
+			DriverManager.closePlaywrightResources();
 		} else {
 			appli.closeAppliTools();
 			testHarness.closeRespectiveDriver(scenario);
 		}
 	}
 	
-	// Playwright objects
-	private static Playwright playwright;
-	private static Browser browser;
-	private static BrowserContext context;
-	private static Page page;
-	
 	private boolean isPlaywrightExecution() {
 		return "PLAYWRIGHT".equalsIgnoreCase(properties.getProperty("AutomationFramework", "SELENIUM"));
 	}
-	
-	public static void initializePlaywright() {
-		if (playwright == null) {
-			playwright = Playwright.create();
-			browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
-			context = browser.newContext();
-			page = context.newPage();
-		}
-	}
-	
-	public static Page getPlaywrightPageInstance() {
-		initializePlaywright();
-		return page;
-	}
-	
-	private void closePlaywrightResources() {
-		try {
-			if (page != null && !page.isClosed()) {
-				page.context().browser().close();
-				playwright.close();
-				playwright = null;
-				browser = null;
-				context = null;
-				page = null;
-			}
-		} catch (Exception e) {
-			// Ignore cleanup errors
-		}
-	}
+
 
 }

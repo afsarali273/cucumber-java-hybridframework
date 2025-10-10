@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import com.cucumber.steps.Hooks;
+import com.framework.cucumber.DriverManager;
 import com.microsoft.playwright.Page;
 
 /**
@@ -28,7 +28,7 @@ public class PageManager {
         return (T) pageCache.computeIfAbsent(pageClass, clazz -> {
             try {
                 Constructor<T> constructor = pageClass.getConstructor(Page.class);
-                return constructor.newInstance(Hooks.getPlaywrightPageInstance());
+                return constructor.newInstance(DriverManager.getPage());
             } catch (Exception e) {
                 throw new RuntimeException("Failed to create page instance: " + pageClass.getSimpleName(), e);
             }

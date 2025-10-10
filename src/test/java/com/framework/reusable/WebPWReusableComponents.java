@@ -22,6 +22,7 @@ import com.framework.components.FrameworkParameters;
 import com.framework.components.RestAssuredUtils;
 import com.framework.components.ScriptHelper;
 import com.framework.components.Settings;
+import com.framework.cucumber.DriverManager;
 import com.framework.data.FrameworkDataTable;
 import com.framework.report.Status;
 import com.microsoft.playwright.*;
@@ -99,9 +100,9 @@ public abstract class WebPWReusableComponents extends GenericResuableComponents 
 	public WebPWReusableComponents() {
 		properties = Settings.getInstance();
 		frameworkParameters = FrameworkParameters.getInstance();
-		// Get page instance from Hooks if available
+		// Get page instance from DriverManager
 		if (page == null) {
-			page = com.cucumber.steps.Hooks.getPlaywrightPageInstance();
+			page = DriverManager.getPage();
 		}
 	}
 

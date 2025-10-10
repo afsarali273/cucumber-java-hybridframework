@@ -4,6 +4,7 @@ import java.util.Properties;
 
 import com.framework.components.Settings;
 import com.framework.cucumber.TestHarness;
+import com.framework.cucumber.DriverManager;
 
 import com.framework.reusable.WebPWReusableComponents;
 import com.pages.PlaywrightWebPage;
@@ -30,7 +31,7 @@ public class PlaywrightWebSteps extends WebPWReusableComponents {
     
     private void initializePageObjects() {
         if (webPage == null) {
-            webPage = new PlaywrightWebPage(Hooks.getPlaywrightPageInstance());
+            webPage = new PlaywrightWebPage(DriverManager.getPage());
         }
     }
 

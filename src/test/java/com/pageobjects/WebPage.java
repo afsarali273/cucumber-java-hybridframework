@@ -15,6 +15,7 @@
  */
 package com.pageobjects;
 
+import com.framework.components.Settings;
 import org.openqa.selenium.By;
 import org.testng.Assert;
 import com.framework.components.ApplitoolsOperations;
@@ -53,7 +54,8 @@ public class WebPage extends WebReusableComponents {
 	protected ApplitoolsOperations appliTools = new ApplitoolsOperations();
 
 	protected void launchApp() {
-		launchUrl(getAppUrl());
+		String appUrl = Settings.getInstance().getProperty("qaAppUrl");
+		launchUrl(appUrl);
 		maximizeWindow();
 		appliTools.captureContent("");
 	}

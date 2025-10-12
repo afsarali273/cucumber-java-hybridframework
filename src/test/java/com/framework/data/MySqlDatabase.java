@@ -10,6 +10,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import com.framework.components.Settings;
@@ -72,5 +73,37 @@ public class MySqlDatabase {
             e.printStackTrace();
         }
         return property.getProperty(key);
+    }
+
+    /**
+     * Returns a map of column names to values for the row matching the given testCaseId in the specified table.
+     * Assumes "TestCaseId" is a column in the table.
+     */
+    public Map<String, String> getDataAsMap(String tableName, String testCaseId) throws Exception {
+        Map<String, String> result = new HashMap<>();
+        Connection conn = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+        try {
+            String url = properties.getProperty("mySqlServer");
+            String username = properties.getProperty("mySqlUsername");
+            String password = properties.getProperty("mySqlPassword");
+            conn = DriverManager.getConnection(url, username, password);
+            stmt = conn.createStatement();
+            rs = stmt.executeQuery("SELECT * FROM `" + tableName + "` WHERE TestCaseId='" + testCaseId + "'");
+            if (rs.next()) {
+                int colCount = rs.getMetaData().getColumnCount();
+                for (int i = 1; i <= colCount; i++) {
+                    String colName = rs.getMetaData().getColumnName(i);
+                    String value = rs.getString(i);
+                    result.put(colName, value != null ? value : "");
+                }
+            }
+        } finally {
+            if (rs != null) try { rs.close(); } catch (Exception ignored) {}
+            if (stmt != null) try { stmt.close(); } catch (Exception ignored) {}
+            if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+        }
+        return result;
     }
 }

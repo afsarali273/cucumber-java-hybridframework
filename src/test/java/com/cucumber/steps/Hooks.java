@@ -16,171 +16,297 @@
 package com.cucumber.steps;
 
 import java.io.IOException;
-import java.util.Properties;
-
-import org.openqa.selenium.OutputType;
-import org.openqa.selenium.TakesScreenshot;
 
 import com.framework.components.ApplitoolsOperations;
-import com.microsoft.playwright.*;
-import com.framework.components.Settings;
+import com.framework.core.FrameworkCore;
 import com.framework.cucumber.DriverManager;
 import com.framework.cucumber.TestHarness;
-import com.framework.selenium.CustomDriver;
 import com.framework.selenium.CloudPlatformWebDriverFactory;
+import com.framework.utils.ScreenshotManager;
 
 import io.cucumber.java.After;
 import io.cucumber.java.AfterStep;
 import io.cucumber.java.Before;
 import io.cucumber.java.Scenario;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
-
+/**
+ * Cucumber Hooks class that manages test lifecycle events
+ * Handles driver initialization, screenshot capture, and cleanup operations
+ * 
+ * Features:
+ * - Unified driver management for Selenium, Playwright, Appium, and WinAppDriver
+ * - Intelligent screenshot capture based on configuration
+ * - Applitools visual testing integration
+ * - SauceLabs integration support
+ * - Comprehensive error handling and logging
+ * 
+ * @author Qualitest
+ * @version 2.0
+ */
 public class Hooks {
-	static CustomDriver driver ;
-	static Integer i=0;
-	private TestHarness testHarness;
-	public ApplitoolsOperations appli = new ApplitoolsOperations();
-	Properties properties = Settings.getInstance();
+    
+    private static final Logger logger = LogManager.getLogger(Hooks.class);
+    
+    // Framework components
+    private final FrameworkCore frameworkCore;
+    private final ScreenshotManager screenshotManager;
+    private final ApplitoolsOperations applitoolsOperations;
+    
+    // Legacy components for backward compatibility
+    private TestHarness testHarness;
+    private static Integer screenshotCounter = 0;
+    
+    /**
+     * Constructor initializes framework components
+     */
+    public Hooks() {
+        this.frameworkCore = FrameworkCore.getInstance();
+        this.screenshotManager = ScreenshotManager.getInstance();
+        this.applitoolsOperations = new ApplitoolsOperations();
+        
+        logger.debug("Hooks initialized with framework components");
+    }
 
-	/**
-	 * Method to initialize driver
-	 * 
-	 * @param scenario
-	 */
-	@Before
-	public void setUp(Scenario scenario) {
-		testHarness = new TestHarness();
-		DriverManager.getTestParameters().setScenario(scenario);
-		
-		// Initialize Playwright or Selenium driver based on configuration
-		if (isPlaywrightExecution()) {
-			DriverManager.initializePlaywright(DriverManager.getTestParameters());
-		} else {
-			testHarness.invokeDriver(scenario);
-			if(!(DriverManager.getTestParameters().getExecutionMode().toString().equalsIgnoreCase("SAUCELABS")))
-			{
-				appli.invokeAppliTools(scenario.getName()+scenario.getLine());
-				appli.openEyes(DriverManager.getWebDriver());
-			}
-		}
-	}
+    /**
+     * Pre-test setup hook that initializes the framework and drivers
+     * 
+     * This method is executed before each scenario and performs:
+     * 1. Framework core initialization
+     * 2. Driver setup based on configuration (Selenium/Playwright/Appium/Windows)
+     * 3. Applitools visual testing setup (if enabled and not SauceLabs)
+     * 4. Test execution approach configuration
+     * 
+     * @param scenario The Cucumber scenario being executed
+     */
+    @Before(order = 1)
+    public void initializeFramework(Scenario scenario) {
+        logger.info("=== Starting test setup for scenario: {} ===", scenario.getName());
+        
+        try {
+            // Initialize legacy test harness for backward compatibility
+            testHarness = new TestHarness();
+            
+            // Get test parameters and set scenario
+            var testParameters = DriverManager.getTestParameters();
+            if (testParameters != null) {
+                testParameters.setScenario(scenario);
+                
+                // Initialize framework with unified approach
+                frameworkCore.initializeFramework(scenario, testParameters);
+                
+                // Setup Applitools if enabled and not running on SauceLabs
+                setupApplitoolsIfEnabled(scenario, testParameters);
+                
+            } else {
+                // Fallback to legacy initialization
+                logger.warn("Test parameters not found, using legacy initialization");
+                testHarness.invokeDriver(scenario);
+            }
+            
+            logger.info("Framework initialization completed for scenario: {}", scenario.getName());
+            
+        } catch (Exception e) {
+            logger.error("Failed to initialize framework for scenario: {}", scenario.getName(), e);
+            throw new RuntimeException("Framework initialization failed", e);
+        }
+    }
 
-	/**
-	 * To set execution approach as cucumber in property file
-	 */
-	@Before
-	public void setExecutionApproach() {
-		properties.setProperty("ExecutionApproach", "CUCUMBER");
-	}
+    /**
+     * Set execution approach to CUCUMBER in configuration
+     * 
+     * This ensures that the framework knows it's running in Cucumber mode
+     * which affects reporting and other framework behaviors
+     */
+    @Before(order = 0)
+    public void setExecutionApproach() {
+        logger.debug("Setting execution approach to CUCUMBER");
+        frameworkCore.getConfigManager().setProperty("ExecutionApproach", "CUCUMBER");
+    }
 
-	/**
-	 * Method to take screenshot after each step
-	 * @param scenario
-	 */
-	@AfterStep
-	public void addScreenshot(Scenario scenario) {
-
-		if (!DriverManager.getTestParameters().isAPIExecution()&&!(DriverManager.getTestParameters().getExecutionMode().toString().equalsIgnoreCase("SAUCELABS"))) {
-			// Check if it's a Playwright test
-			if (isPlaywrightExecution()) {
-				takePlaywrightScreenshot(scenario);
-			} else if (Boolean.parseBoolean(properties.getProperty("TakeScreenshotPassedStep"))) {
-				if (!DriverManager.getTestParameters().isMobileExecution()) {
-					if (!DriverManager.getTestParameters().isWindowsExecution()) {
-					final byte[] screenshot = ((TakesScreenshot) DriverManager.getWebDriver())
-							.getScreenshotAs(OutputType.BYTES);
-					scenario.attach(screenshot, "image/png", "image");
-				} else{
-						final byte[] screenshot = ((TakesScreenshot) DriverManager.getWindowsDriver())
-								.getScreenshotAs(OutputType.BYTES);
-						scenario.attach(screenshot, "image/png", "image");
-					}
-				}else {
-					final byte[] screenshot = ((TakesScreenshot) DriverManager.getAppiumDriver())
-							.getScreenshotAs(OutputType.BYTES);
-					scenario.attach(screenshot, "image/png", "image");
-				}
-			} else {
-				if (!DriverManager.getTestParameters().isMobileExecution()) {
-					if (!DriverManager.getTestParameters().isMobileExecution()) {
-					if (scenario.isFailed()) {
-						final byte[] screenshot = ((TakesScreenshot) DriverManager.getWebDriver())
-								.getScreenshotAs(OutputType.BYTES);
-						scenario.attach(screenshot, "image/png", "image");
-					}
-				} else {
-
-					if (scenario.isFailed()) {
-						final byte[] screenshot = ((TakesScreenshot) DriverManager.getWindowsDriver())
-								.getScreenshotAs(OutputType.BYTES);
-						scenario.attach(screenshot, "image/png", "image");
-					}
-				}
-				} else {
-					if (scenario.isFailed()) {
-						final byte[] screenshot = ((TakesScreenshot) DriverManager.getAppiumDriver())
-								.getScreenshotAs(OutputType.BYTES);
-						scenario.attach(screenshot, "image/png", "image");
-					}
-				}
-			}
-		}
-	}
+    /**
+     * Capture screenshot after each test step
+     * 
+     * This method handles screenshot capture for all supported driver types:
+     * - Selenium WebDriver (Chrome, Firefox, Edge, etc.)
+     * - Microsoft Playwright
+     * - Appium (Mobile testing)
+     * - WinAppDriver (Windows applications)
+     * 
+     * Screenshots are taken based on configuration settings:
+     * - TakeScreenshotPassedStep: Capture on passed steps
+     * - TakeScreenshotFailedStep: Capture on failed steps
+     * 
+     * @param scenario The Cucumber scenario being executed
+     */
+    @AfterStep(order = 1)
+    public void captureScreenshot(Scenario scenario) {
+        logger.debug("Processing screenshot capture for step in scenario: {}", scenario.getName());
+        
+        try {
+            // Determine if step passed or failed
+            boolean isStepPassed = !scenario.isFailed();
+            
+            // Use centralized screenshot manager for intelligent capture
+            screenshotManager.takeScreenshot(scenario, isStepPassed);
+            
+        } catch (Exception e) {
+            logger.error("Error during screenshot capture for scenario: {}", scenario.getName(), e);
+            // Don't fail the test due to screenshot issues
+        }
+    }
 	
-	private void takePlaywrightScreenshot(Scenario scenario) {
-		try {
-			// Get Playwright page from DriverManager
-			Page page = DriverManager.getPage();
-			if (page != null) {
-				// Wait for page to be ready
-				page.waitForLoadState(com.microsoft.playwright.options.LoadState.NETWORKIDLE);
-				// Take screenshot
-				byte[] screenshot = page.screenshot();
-				scenario.attach(screenshot, "image/png", "image");
-			}
-		} catch (Exception e) {
-			// Fallback to Selenium if Playwright fails
-			try {
-				final byte[] screenshot = ((TakesScreenshot) DriverManager.getWebDriver())
-						.getScreenshotAs(OutputType.BYTES);
-				scenario.attach(screenshot, "image/png", "image");
-			} catch (Exception ex) {
-				// Screenshot failed
-			}
-		}
-	}
-
-	/**
-	 * Method to capture content/visual screen using appli tools
-	 */
-	@AfterStep
-	public void captureContent(Scenario sc) {
-		if(properties.get("AfterStepAppliTools").toString().equalsIgnoreCase("True"))
-			appli.captureContent(sc.getName()+sc.getLine()+"screen"+i);
-		CloudPlatformWebDriverFactory.captureSaucescreener(sc.getLine()+"screen"+i);
-		i++;
-	}
 
 
-	/**
-	 * Method to close respective drivers
-	 * @param scenario
-	 * @throws IOException
-	 */
-	@After
-	public void tearDown(Scenario scenario) throws IOException {
-		// Close Playwright if it was used
-		if (isPlaywrightExecution()) {
-			DriverManager.closePlaywrightResources();
-		} else {
-			appli.closeAppliTools();
-			testHarness.closeRespectiveDriver(scenario);
-		}
-	}
+    /**
+     * Capture visual content using Applitools and SauceLabs visual testing
+     * 
+     * This method handles:
+     * 1. Applitools visual checkpoints (if enabled)
+     * 2. SauceLabs visual testing integration
+     * 
+     * @param scenario The Cucumber scenario being executed
+     */
+    @AfterStep(order = 2)
+    public void captureVisualContent(Scenario scenario) {
+        logger.debug("Processing visual content capture for scenario: {}", scenario.getName());
+        
+        try {
+            // Increment screenshot counter for unique naming
+            screenshotCounter++;
+            
+            // Capture Applitools visual checkpoint if enabled
+            if (isApplitoolsAfterStepEnabled()) {
+                String checkpointName = generateCheckpointName(scenario, screenshotCounter);
+                applitoolsOperations.captureContent(checkpointName);
+                logger.debug("Applitools checkpoint captured: {}", checkpointName);
+            }
+            
+            // Capture SauceLabs visual screenshot
+            String screenshotName = generateScreenshotName(scenario, screenshotCounter);
+            CloudPlatformWebDriverFactory.captureSaucescreener(screenshotName);
+            logger.debug("SauceLabs screenshot captured: {}", screenshotName);
+            
+        } catch (Exception e) {
+            logger.error("Error during visual content capture for scenario: {}", scenario.getName(), e);
+            // Don't fail the test due to visual capture issues
+        }
+    }
+
+
+    /**
+     * Post-test cleanup hook that closes drivers and cleans up resources
+     * 
+     * This method is executed after each scenario and performs:
+     * 1. Applitools session closure
+     * 2. Driver cleanup (all types: Selenium, Playwright, Appium, Windows)
+     * 3. Framework resource cleanup
+     * 4. Error logging and reporting
+     * 
+     * @param scenario The Cucumber scenario that was executed
+     * @throws IOException If there are issues with file operations during cleanup
+     */
+    @After
+    public void cleanupFramework(Scenario scenario) throws IOException {
+        logger.info("=== Starting test cleanup for scenario: {} ===", scenario.getName());
+        
+        try {
+            // Close Applitools session if it was opened
+            closeApplitoolsSession();
+            
+            // Use framework core for unified cleanup
+            frameworkCore.cleanupFramework(scenario);
+            
+            // Legacy cleanup for backward compatibility
+            if (testHarness != null) {
+                testHarness.closeRespectiveDriver(scenario);
+            }
+            
+            // Reset screenshot counter for next test
+            screenshotCounter = 0;
+            
+            logger.info("Test cleanup completed successfully for scenario: {}", scenario.getName());
+            
+        } catch (Exception e) {
+            logger.error("Error during test cleanup for scenario: {}", scenario.getName(), e);
+            // Log the error but don't fail the test due to cleanup issues
+        }
+    }
 	
-	private boolean isPlaywrightExecution() {
-		return "PLAYWRIGHT".equalsIgnoreCase(properties.getProperty("AutomationFramework", "SELENIUM"));
-	}
-
-
+    // ========== PRIVATE HELPER METHODS ==========
+    
+    /**
+     * Setup Applitools visual testing if enabled and conditions are met
+     * 
+     * @param scenario The Cucumber scenario
+     * @param testParameters Test execution parameters
+     */
+    private void setupApplitoolsIfEnabled(Scenario scenario, 
+                                         com.framework.selenium.SeleniumTestParameters testParameters) {
+        try {
+            // Skip Applitools setup for SauceLabs execution
+            if ("SAUCELABS".equalsIgnoreCase(testParameters.getExecutionMode().toString())) {
+                logger.debug("Skipping Applitools setup for SauceLabs execution");
+                return;
+            }
+            
+            // Check if Applitools is enabled
+            if (frameworkCore.getConfigManager().getBooleanProperty("AppliTools", false)) {
+                String testName = scenario.getName() + "_" + scenario.getLine();
+                applitoolsOperations.invokeAppliTools(testName);
+                applitoolsOperations.openEyes(DriverManager.getWebDriver());
+                logger.info("Applitools visual testing initialized for: {}", testName);
+            }
+            
+        } catch (Exception e) {
+            logger.error("Failed to setup Applitools for scenario: {}", scenario.getName(), e);
+            // Don't fail the test due to Applitools setup issues
+        }
+    }
+    
+    /**
+     * Close Applitools session if it was opened
+     */
+    private void closeApplitoolsSession() {
+        try {
+            if (frameworkCore.getConfigManager().getBooleanProperty("AppliTools", false)) {
+                applitoolsOperations.closeAppliTools();
+                logger.debug("Applitools session closed");
+            }
+        } catch (Exception e) {
+            logger.error("Error closing Applitools session", e);
+        }
+    }
+    
+    /**
+     * Check if Applitools after-step capture is enabled
+     * 
+     * @return true if enabled, false otherwise
+     */
+    private boolean isApplitoolsAfterStepEnabled() {
+        return frameworkCore.getConfigManager().getBooleanProperty("AfterStepAppliTools", false);
+    }
+    
+    /**
+     * Generate unique checkpoint name for Applitools
+     * 
+     * @param scenario The Cucumber scenario
+     * @param counter Screenshot counter
+     * @return Formatted checkpoint name
+     */
+    private String generateCheckpointName(Scenario scenario, Integer counter) {
+        return scenario.getName() + "_" + scenario.getLine() + "_screen_" + counter;
+    }
+    
+    /**
+     * Generate unique screenshot name for SauceLabs
+     * 
+     * @param scenario The Cucumber scenario
+     * @param counter Screenshot counter
+     * @return Formatted screenshot name
+     */
+    private String generateScreenshotName(Scenario scenario, Integer counter) {
+        return scenario.getLine() + "_screen_" + counter;
+    }
 }

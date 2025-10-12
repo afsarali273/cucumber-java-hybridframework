@@ -22,6 +22,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Duration;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
@@ -68,7 +69,7 @@ public class WindowsDriverFactory {
                         capabilities.setCapability("deviceName", properties.getProperty("WindowsDeviceName"));
                         String url = properties.getProperty("WindowsMachineURL")+":"+properties.getProperty("WindowsMachinePort");
                         driver = new WindowsDriver(new URL(url), capabilities);
-                        driver.manage().timeouts().implicitlyWait(2, TimeUnit.SECONDS);
+                        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(2));
                     } catch (MalformedURLException e) {
                         throw new FrameworkException(
                                 "The android driver invokation has problem, please re-check the capabilities or Start Appium");

@@ -314,34 +314,28 @@ public class FrameworkDataTable {
 	}
 	
 	public void putData(String key, String value) {
-		
-		
+		String reportPath = System.getProperty("reportPath");
 		switch(properties.getProperty("TestData").toString()) {
-		
-		case "JSON":
-			JsonData jsData = new JsonData();	
-			jsData.jsonputData(System.getProperty("reportPath"),currentTestcase,key, value);
-			break;
-			
-		case "CSV":
-			CsvReader csvRead = new CsvReader();
-			csvRead.csvPutdata(System.getProperty("reportPath"),currentTestcase,key, value);
-			break;
-			
-		case "ACCESSDB":
-			AccessDatabase accdb = new AccessDatabase();
-			try {
-				accdb.createAccessDB(System.getProperty("reportPath"),currentTestcase,key, value);
-			} catch (IOException | SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			break;
-			
-		case "EXCEL":
-			ExcelDataAccess testDataAccess = new ExcelDataAccess(datatablePath, currentTestcase);
-			testDataAccess.updateExcel(System.getProperty("reportPath"),currentTestcase,key, value);
-			
+			case "JSON":
+				JsonData jsData = new JsonData(reportPath, currentTestcase);
+				jsData.jsonputData(reportPath, currentTestcase, key, value);
+				break;
+			case "CSV":
+				CsvReader csvRead = new CsvReader(reportPath, currentTestcase);
+				csvRead.csvPutdata(reportPath, currentTestcase, key, value);
+				break;
+			case "ACCESSDB":
+				AccessDatabase accdb = new AccessDatabase(reportPath + com.framework.report.Util.getFileSeparator() + "Output.accdb");
+				try {
+					accdb.createAccessDB(reportPath, currentTestcase, key, value);
+				} catch (IOException | SQLException e) {
+					e.printStackTrace();
+				}
+				break;
+			case "EXCEL":
+				ExcelDataAccess testDataAccess = new ExcelDataAccess(reportPath, "Output");
+				testDataAccess.updateExcel(reportPath, currentTestcase, key, value);
+				break;
 		}
 
 	}

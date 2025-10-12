@@ -20,8 +20,8 @@
 		<qualiframe-components>2.0</qualiframe-components>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<dataproviderthreadcount>1</dataproviderthreadcount>
-		<selenium.standalone>4.8.1</selenium.standalone>
-		<java.client.appium>8.3.0</java.client.appium>
+		<selenium.standalone>4.36.0</selenium.standalone>
+		<java.client.appium>10.0.0</java.client.appium>
 		<io.cucumber>7.11.2</io.cucumber>
 		<org.testng>7.7.1</org.testng>
 		<org.apache.maven.plugins.maven-compiler-plugin.version>3.8.1</org.apache.maven.plugins.maven-compiler-plugin.version>

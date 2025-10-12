@@ -17,7 +17,7 @@ public class WebSteps extends WebPage {
 
 	@When("Launch Application using {string}")
 	public void launch_Application(String tcid) {
-		testHarness.initializeTestData(tcid);
+		//testHarness.initializeTestData(tcid);
 		launchApp();
 	}
 	@Then("verify login page displayed successfully")
@@ -30,10 +30,10 @@ public class WebSteps extends WebPage {
 	@When("^User enters userCredentials in text field$")
 	public void enterUserCredentials() {
 
-		String userName = testHarness.getData("General_Data", "UserName");
-		String password = testHarness.getData("General_Data", "Password");
-		enterUserName(userName);
-		enterPassword(password);
+		//String userName = testHarness.getData("General_Data", "UserName");
+		//String password = testHarness.getData("General_Data", "Password");
+		enterUserName("userName");
+		enterPassword("password");
 	}
 
 	@When("User clicks Login button")

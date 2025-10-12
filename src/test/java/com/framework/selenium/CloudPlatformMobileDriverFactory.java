@@ -59,135 +59,113 @@ public class CloudPlatformMobileDriverFactory {
 
 		AppiumDriver driver = null;
 		mobileProperties = Settings.getMobilePropertiesInstance();
-		DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
+		MutableCapabilities capabilities = new MutableCapabilities();
 		String lambdaTestURL= properties.getProperty("LambdaMobileHost");
 		String sauceURL = properties.getProperty("SauceHost");
 		String browserStackURL = properties.getProperty("BrowserStackHost");
 		System.out.println("The execution mode is " + executionMode);
 
 		switch (executionMode) {
-
 			case SAUCELABS: {
-
 				try {
 					switch (executionPlatform) {
-
 						case ANDROID:
 							if (Boolean.parseBoolean(mobileProperties.getProperty("UploadMobileAppInSauceLab"))) {
 								uploadAPPUsingAPI(executionPlatform);
 							}
 							System.setProperty("SAUCE_USERNAME", properties.getProperty("SauceUserName"));
 							System.setProperty("SAUCE_ACCESS_KEY", properties.getProperty("SauceAccessKey"));
-							MutableCapabilities SLAndroidCaps = new MutableCapabilities();
-						//	SLAndroidCaps.setCapability("appiumVersion",mobileProperties.getProperty("SaucelabAppiumDriverVersion"));
-							SLAndroidCaps.setCapability("platformName", "Android");
-							SLAndroidCaps.setCapability("appium:platformVersion", testParameters.getMobileOSVersion());
-							SLAndroidCaps.setCapability("appium:deviceName", testParameters.getDeviceName());
-							SLAndroidCaps.setCapability("app", "storage:filename=" + mobileProperties.getProperty("SauceAndroidIdentifier"));
-							SLAndroidCaps.setCapability("appPackage",mobileProperties.getProperty("Application_Package_Name"));
-							SLAndroidCaps.setCapability("appActivity",mobileProperties.getProperty("Application_MainActivity_Name"));
-							//SLAndroidCaps.setCapability("name", properties.getProperty("SauceTestName"));
-							SLAndroidCaps.setCapability("orientation", properties.getProperty("SauceAppOrientation"));
-							SLAndroidCaps.setCapability("resigningEnabled", properties.getProperty("SauceResigningEnabled"));
-							SLAndroidCaps.setCapability("sauceLabsNetworkCaptureEnabled", properties.getProperty("SauceLabsNetworkCaptureEnabled"));
-							SLAndroidCaps.setCapability("autoGrantPermissions", properties.getProperty("SauceautoGrantPermissions"));
+							capabilities.setCapability("platformName", "Android");
+							capabilities.setCapability("appium:platformVersion", testParameters.getMobileOSVersion());
+							capabilities.setCapability("appium:deviceName", testParameters.getDeviceName());
+							capabilities.setCapability("app", "storage:filename=" + mobileProperties.getProperty("SauceAndroidIdentifier"));
+							capabilities.setCapability("appPackage",mobileProperties.getProperty("Application_Package_Name"));
+							capabilities.setCapability("appActivity",mobileProperties.getProperty("Application_MainActivity_Name"));
+							capabilities.setCapability("orientation", properties.getProperty("SauceAppOrientation"));
+							capabilities.setCapability("resigningEnabled", properties.getProperty("SauceResigningEnabled"));
+							capabilities.setCapability("sauceLabsNetworkCaptureEnabled", properties.getProperty("SauceLabsNetworkCaptureEnabled"));
+							capabilities.setCapability("autoGrantPermissions", properties.getProperty("SauceautoGrantPermissions"));
 							MutableCapabilities sauceAndroidOptions = new MutableCapabilities();
 							sauceAndroidOptions.setCapability("build", properties.getProperty("SauceBuildName"));
 							if (!(testParameters.getCurrentTestcase() == ""))
 								sauceAndroidOptions.setCapability("name", testParameters.getCurrentTestcase());
 							else
 								sauceAndroidOptions.setCapability("name", testParameters.getScenario().getName());
-							SLAndroidCaps.setCapability("sauce:options", sauceAndroidOptions);
+							capabilities.setCapability("sauce:options", sauceAndroidOptions);
 							try {
-								driver = new AndroidDriver(new URL(sauceURL), SLAndroidCaps);
+								driver = new AndroidDriver(new URL(sauceURL), capabilities);
 							} catch (MalformedURLException e) {
-								throw new FrameworkException(
-										"The android driver invokation has problem, please re-check the capabilities and check the SauceLabs details URL, Username and accessKey ");
+								throw new FrameworkException("The android driver invocation has problem, please re-check the capabilities and check the SauceLabs details URL, Username and accessKey ");
 							}
 							System.out.println("Test App launched in Saucelabs Android Real device");
 							break;
-
 						case IOS:
 							if (Boolean.parseBoolean(mobileProperties.getProperty("UploadMobileAppInSauceLab"))) {
 								uploadAPPUsingAPI(executionPlatform);
 							}
-							MutableCapabilities SLIOSCaps = new MutableCapabilities();
-							SLIOSCaps.setCapability("app", "storage:filename=" + mobileProperties.get("appNameSauceLabs"));
-							SLIOSCaps.setCapability("deviceName", mobileProperties.getProperty("deviceNameSauceLabs"));
-							SLIOSCaps.setCapability("platformName", "iOS");
-							SLIOSCaps.setCapability("automationName", mobileProperties.getProperty("automationname"));
-							SLIOSCaps.setCapability("noReset", mobileProperties.getProperty("ios_appreset"));
-							SLIOSCaps.setCapability("cacheId", "1234");
+							capabilities.setCapability("app", "storage:filename=" + mobileProperties.get("appNameSauceLabs"));
+							capabilities.setCapability("deviceName", mobileProperties.getProperty("deviceNameSauceLabs"));
+							capabilities.setCapability("platformName", "iOS");
+							capabilities.setCapability("automationName", mobileProperties.getProperty("automationname"));
+							capabilities.setCapability("noReset", mobileProperties.getProperty("ios_appreset"));
+							capabilities.setCapability("cacheId", "1234");
 							MutableCapabilities sauceIOSOptions = new MutableCapabilities();
 							sauceIOSOptions.setCapability("build", properties.getProperty("SauceBuildName"));
 							if (!(testParameters.getCurrentTestcase() == ""))
 								sauceIOSOptions.setCapability("name", testParameters.getCurrentTestcase());
 							else
 								sauceIOSOptions.setCapability("name", testParameters.getScenario().getName());
-
-							SLIOSCaps.setCapability("sauce:options", sauceIOSOptions);
+							capabilities.setCapability("sauce:options", sauceIOSOptions);
 							try {
-								driver = new IOSDriver(new URL(sauceURL), SLIOSCaps);
+								driver = new IOSDriver(new URL(sauceURL), capabilities);
 							} catch (Exception e) {
 								System.out.println("*** Problem to create the iOS driver " + e.getMessage());
 								throw new RuntimeException(e);
 							}
 							System.out.println("Test App launched in Saucelabs IOS Real device");
 							break;
-
 						case WEB_ANDROID:
-							desiredCapabilities.setCapability("appiumVersion",
-									mobileProperties.getProperty("SaucelabAppiumDriverVersion"));
-							desiredCapabilities.setCapability("deviceName", testParameters.getDeviceName());
-							desiredCapabilities.setCapability("browserName", testParameters.getBrowser());
-							desiredCapabilities.setCapability("platformVersion", testParameters.getMobileOSVersion());
-							desiredCapabilities.setCapability("platformName", "Android");
-							desiredCapabilities.setCapability("automationName", "UiAutomator2");
+							capabilities.setCapability("appiumVersion", mobileProperties.getProperty("SaucelabAppiumDriverVersion"));
+							capabilities.setCapability("deviceName", testParameters.getDeviceName());
+							capabilities.setCapability("browserName", testParameters.getBrowser());
+							capabilities.setCapability("platformVersion", testParameters.getMobileOSVersion());
+							capabilities.setCapability("platformName", "Android");
+							capabilities.setCapability("automationName", "UiAutomator2");
 							if (!(testParameters.getCurrentTestcase() == ""))
-								desiredCapabilities.setCapability("name", testParameters.getCurrentTestcase());
+								capabilities.setCapability("name", testParameters.getCurrentTestcase());
 							else
-								desiredCapabilities.setCapability("name", testParameters.getScenario().getName());
+								capabilities.setCapability("name", testParameters.getScenario().getName());
 							try {
-								driver = new AndroidDriver(new URL(sauceURL), desiredCapabilities);
+								driver = new AndroidDriver(new URL(sauceURL), capabilities);
 							} catch (MalformedURLException e) {
-								throw new FrameworkException(
-										"The android driver/browser invokation has problem, please re-check the capabilities and check the SauceLabs details URL, Username and accessKey ");
+								throw new FrameworkException("The android driver/browser invocation has problem, please re-check the capabilities and check the SauceLabs details URL, Username and accessKey ");
 							}
 							break;
-
 						case WEB_IOS:
-							desiredCapabilities.setCapability("appiumVersion",
-									mobileProperties.getProperty("SaucelabAppiumDriverVersion"));
-							desiredCapabilities.setCapability("platformName", "ios");
-							desiredCapabilities.setCapability("deviceName", testParameters.getDeviceName());
+							capabilities.setCapability("appiumVersion", mobileProperties.getProperty("SaucelabAppiumDriverVersion"));
+							capabilities.setCapability("platformName", "ios");
+							capabilities.setCapability("deviceName", testParameters.getDeviceName());
 							if (!(testParameters.getCurrentTestcase() == ""))
-								desiredCapabilities.setCapability("name", testParameters.getCurrentTestcase());
+								capabilities.setCapability("name", testParameters.getCurrentTestcase());
 							else
-								desiredCapabilities.setCapability("name", testParameters.getScenario().getName());
-							desiredCapabilities.setCapability("browserName", testParameters.getBrowser());
-							desiredCapabilities.setCapability("platformVersion", testParameters.getMobileOSVersion());
-
+								capabilities.setCapability("name", testParameters.getScenario().getName());
+							capabilities.setCapability("browserName", testParameters.getBrowser());
+							capabilities.setCapability("platformVersion", testParameters.getMobileOSVersion());
 							try {
-								driver = new IOSDriver(new URL(sauceURL), desiredCapabilities);
-
+								driver = new IOSDriver(new URL(sauceURL), capabilities);
 							} catch (MalformedURLException e) {
-								throw new FrameworkException(
-										"The IOS driver invokation/browser has problem, please re-check the capabilities and check the SauceLabs details URL, Username and accessKey ");
+								throw new FrameworkException("The IOS driver/browser invocation has problem, please re-check the capabilities and check the SauceLabs details URL, Username and accessKey ");
 							}
 							break;
-
 						default:
 							throw new FrameworkException("Unhandled ExecutionMode!");
-
 					}
 				} catch (Exception ex) {
 					ex.printStackTrace();
-					throw new FrameworkException(
-							"The Sauce appium driver invocation created a problem , please check the capabilities");
+					throw new FrameworkException("The Sauce appium driver invocation created a problem, please check the capabilities");
 				}
 			}
 			break;
-
 			case BROWSERSTACK: {
 
 				try {
@@ -249,20 +227,19 @@ public class CloudPlatformMobileDriverFactory {
 							break;
 
 						case WEB_ANDROID:
-							desiredCapabilities.setCapability("appiumVersion",
-									mobileProperties.getProperty("SaucelabAppiumDriverVersion"));
-							desiredCapabilities.setCapability("deviceName", testParameters.getDeviceName());
-							desiredCapabilities.setCapability("browserName", testParameters.getBrowser());
-							desiredCapabilities.setCapability("platformVersion", testParameters.getMobileOSVersion());
-							desiredCapabilities.setCapability("platformName", "Android");
-							desiredCapabilities.setCapability("automationName", "UiAutomator2");
+							capabilities.setCapability("appiumVersion", mobileProperties.getProperty("SaucelabAppiumDriverVersion"));
+							capabilities.setCapability("deviceName", testParameters.getDeviceName());
+							capabilities.setCapability("browserName", testParameters.getBrowser());
+							capabilities.setCapability("platformVersion", testParameters.getMobileOSVersion());
+							capabilities.setCapability("platformName", "Android");
+							capabilities.setCapability("automationName", "UiAutomator2");
 							if (!(testParameters.getCurrentTestcase() == ""))
-								desiredCapabilities.setCapability("name", testParameters.getCurrentTestcase());
+								capabilities.setCapability("name", testParameters.getCurrentTestcase());
 							else
-								desiredCapabilities.setCapability("name", testParameters.getScenario().getName());
+								capabilities.setCapability("name", testParameters.getScenario().getName());
 
 							try {
-								driver = new AndroidDriver(new URL(browserStackURL), desiredCapabilities);
+								driver = new AndroidDriver(new URL(browserStackURL), capabilities);
 							} catch (MalformedURLException e) {
 								throw new FrameworkException(
 										"The android driver/browser invokation has problem, please re-check the capabilities and check the SauceLabs details URL, Username and accessKey ");
@@ -270,19 +247,18 @@ public class CloudPlatformMobileDriverFactory {
 							break;
 
 						case WEB_IOS:
-							desiredCapabilities.setCapability("appiumVersion",
-									mobileProperties.getProperty("SaucelabAppiumDriverVersion"));
-							desiredCapabilities.setCapability("platformName", "ios");
-							desiredCapabilities.setCapability("deviceName", testParameters.getDeviceName());
+							capabilities.setCapability("appiumVersion", mobileProperties.getProperty("SaucelabAppiumDriverVersion"));
+							capabilities.setCapability("platformName", "ios");
+							capabilities.setCapability("deviceName", testParameters.getDeviceName());
 							if (!(testParameters.getCurrentTestcase() == ""))
-								desiredCapabilities.setCapability("name", testParameters.getCurrentTestcase());
+								capabilities.setCapability("name", testParameters.getCurrentTestcase());
 							else
-								desiredCapabilities.setCapability("name", testParameters.getScenario().getName());
-							desiredCapabilities.setCapability("browserName", testParameters.getBrowser());
-							desiredCapabilities.setCapability("platformVersion", testParameters.getMobileOSVersion());
+								capabilities.setCapability("name", testParameters.getScenario().getName());
+							capabilities.setCapability("browserName", testParameters.getBrowser());
+							capabilities.setCapability("platformVersion", testParameters.getMobileOSVersion());
 
 							try {
-								driver = new IOSDriver(new URL(browserStackURL), desiredCapabilities);
+								driver = new IOSDriver(new URL(browserStackURL), capabilities);
 
 							} catch (MalformedURLException e) {
 								throw new FrameworkException(
@@ -362,23 +338,23 @@ public class CloudPlatformMobileDriverFactory {
 							break;
 
 						case WEB_ANDROID:
-							desiredCapabilities.setCapability("deviceName", testParameters.getDeviceName());
-							desiredCapabilities.setCapability("browserName", testParameters.getBrowser());
-							desiredCapabilities.setCapability("platformVersion", testParameters.getMobileOSVersion());
-							desiredCapabilities.setCapability("platformName", "Android");
+							capabilities.setCapability("deviceName", testParameters.getDeviceName());
+							capabilities.setCapability("browserName", testParameters.getBrowser());
+							capabilities.setCapability("platformVersion", testParameters.getMobileOSVersion());
+							capabilities.setCapability("platformName", "Android");
 							if (!(testParameters.getCurrentTestcase() == ""))
-								desiredCapabilities.setCapability("name", testParameters.getCurrentTestcase());
+								capabilities.setCapability("name", testParameters.getCurrentTestcase());
 							else
-								desiredCapabilities.setCapability("name", testParameters.getScenario().getName());
-							desiredCapabilities.setCapability("nativeWebScreenshot", mobileProperties.get("LambdaTestnativeWebScreenshot"));
-							desiredCapabilities.setCapability("isRealMobile", mobileProperties.get("LambdaTestisRealMobile"));
-							desiredCapabilities.setCapability("console", mobileProperties.get("LambdaTestconsole"));
-							desiredCapabilities.setCapability("network", mobileProperties.get("LambdaTestnetwork"));
-							desiredCapabilities.setCapability("visual", mobileProperties.get("LambdaTestvisual"));
-							desiredCapabilities.setCapability("tunnel", mobileProperties.get("LambdaTesttunnel"));
-							desiredCapabilities.setCapability("newCommandTimeout", mobileProperties.get("LambdaTestnewCommandTimeout"));
+								capabilities.setCapability("name", testParameters.getScenario().getName());
+							capabilities.setCapability("nativeWebScreenshot", mobileProperties.get("LambdaTestnativeWebScreenshot"));
+							capabilities.setCapability("isRealMobile", mobileProperties.get("LambdaTestisRealMobile"));
+							capabilities.setCapability("console", mobileProperties.get("LambdaTestconsole"));
+							capabilities.setCapability("network", mobileProperties.get("LambdaTestnetwork"));
+							capabilities.setCapability("visual", mobileProperties.get("LambdaTestvisual"));
+							capabilities.setCapability("tunnel", mobileProperties.get("LambdaTesttunnel"));
+							capabilities.setCapability("newCommandTimeout", mobileProperties.get("LambdaTestnewCommandTimeout"));
 							try {
-								driver = new AndroidDriver(new URL(lambdaTestURL), desiredCapabilities);
+								driver = new AndroidDriver(new URL(lambdaTestURL), capabilities);
 							} catch (MalformedURLException e) {
 								throw new FrameworkException(
 										"The android driver/browser invokation has problem, please re-check the capabilities and check the SauceLabs details URL, Username and accessKey ");
@@ -386,23 +362,23 @@ public class CloudPlatformMobileDriverFactory {
 							break;
 
 						case WEB_IOS:
-							desiredCapabilities.setCapability("platformName", "iOS");
-							desiredCapabilities.setCapability("deviceName", testParameters.getDeviceName());
+							capabilities.setCapability("platformName", "iOS");
+							capabilities.setCapability("deviceName", testParameters.getDeviceName());
 							if (!(testParameters.getCurrentTestcase() == ""))
-								desiredCapabilities.setCapability("name", testParameters.getCurrentTestcase());
+								capabilities.setCapability("name", testParameters.getCurrentTestcase());
 							else
-								desiredCapabilities.setCapability("name", testParameters.getScenario().getName());
-							desiredCapabilities.setCapability("browserName", testParameters.getBrowser());
-							desiredCapabilities.setCapability("platformVersion", testParameters.getMobileOSVersion());
-							desiredCapabilities.setCapability("nativeWebScreenshot", mobileProperties.get("LambdaTestnativeWebScreenshot"));
-							desiredCapabilities.setCapability("isRealMobile", mobileProperties.get("LambdaTestisRealMobile"));
-							desiredCapabilities.setCapability("console", mobileProperties.get("LambdaTestconsole"));
-							desiredCapabilities.setCapability("network", mobileProperties.get("LambdaTestnetwork"));
-							desiredCapabilities.setCapability("visual", mobileProperties.get("LambdaTestvisual"));
-							desiredCapabilities.setCapability("tunnel", mobileProperties.get("LambdaTesttunnel"));
-							desiredCapabilities.setCapability("newCommandTimeout", mobileProperties.get("LambdaTestnewCommandTimeout"));
+								capabilities.setCapability("name", testParameters.getScenario().getName());
+							capabilities.setCapability("browserName", testParameters.getBrowser());
+							capabilities.setCapability("platformVersion", testParameters.getMobileOSVersion());
+							capabilities.setCapability("nativeWebScreenshot", mobileProperties.get("LambdaTestnativeWebScreenshot"));
+							capabilities.setCapability("isRealMobile", mobileProperties.get("LambdaTestisRealMobile"));
+							capabilities.setCapability("console", mobileProperties.get("LambdaTestconsole"));
+							capabilities.setCapability("network", mobileProperties.get("LambdaTestnetwork"));
+							capabilities.setCapability("visual", mobileProperties.get("LambdaTestvisual"));
+							capabilities.setCapability("tunnel", mobileProperties.get("LambdaTesttunnel"));
+							capabilities.setCapability("newCommandTimeout", mobileProperties.get("LambdaTestnewCommandTimeout"));
 							try {
-								driver = new IOSDriver(new URL(lambdaTestURL), desiredCapabilities);
+								driver = new IOSDriver(new URL(lambdaTestURL), capabilities);
 							} catch (MalformedURLException e) {
 								throw new FrameworkException(
 										"The IOS driver invokation/browser has problem, please re-check the capabilities and check the SauceLabs details URL, Username and accessKey ");

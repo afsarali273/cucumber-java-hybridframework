@@ -19,7 +19,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Properties;
 
-import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.MutableCapabilities;
 
 import com.framework.components.FrameworkException;
 import com.framework.components.Settings;
@@ -27,7 +27,6 @@ import com.framework.components.Settings;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.android.AndroidDriver;
 import io.appium.java_client.ios.IOSDriver;
-import io.appium.java_client.remote.MobileCapabilityType;
 
 public class AppiumDriverFactory {
 
@@ -54,108 +53,85 @@ public class AppiumDriverFactory {
 
 		AppiumDriver driver = null;
 		mobileProperties = Settings.getMobilePropertiesInstance();
-		DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
+		MutableCapabilities capabilities = new MutableCapabilities();
 		try {
 			switch (executionPlatform) {
 
 			case ANDROID:
-
 				if (Boolean.parseBoolean(mobileProperties.getProperty("InstallApplicationInDevice"))) {
-					desiredCapabilities.setCapability("app", mobileProperties.getProperty("AndroidApplicationPath"));
+					capabilities.setCapability("app", mobileProperties.getProperty("AndroidApplicationPath"));
 				}
-
 				if (!Boolean.parseBoolean(mobileProperties.getProperty("ResetApp"))) {
-					desiredCapabilities.setCapability("noReset", "true");
+					capabilities.setCapability("noReset", "true");
 				}
-				desiredCapabilities.setCapability("platformName", "Android");
-				desiredCapabilities.setCapability("deviceName", deviceName);
-//				desiredCapabilities.setCapability("udid", deviceName);
-				desiredCapabilities.setCapability("platformVersion", version);
-				desiredCapabilities.setCapability("appPackage",
-						mobileProperties.getProperty("Application_Package_Name"));
-				desiredCapabilities.setCapability("appActivity",
-						mobileProperties.getProperty("Application_MainActivity_Name"));
+				capabilities.setCapability("platformName", "Android");
+				capabilities.setCapability("deviceName", deviceName);
+				capabilities.setCapability("platformVersion", version);
+				capabilities.setCapability("appPackage", mobileProperties.getProperty("Application_Package_Name"));
+				capabilities.setCapability("appActivity", mobileProperties.getProperty("Application_MainActivity_Name"));
 				try {
-					driver = new AndroidDriver(new URL(appiumURL), desiredCapabilities);
-
+					driver = new AndroidDriver(new URL(appiumURL), capabilities);
 				} catch (MalformedURLException e) {
-					throw new FrameworkException(
-							"The android driver invokation has problem, please re-check the capabilities or Start Appium");
+					throw new FrameworkException("The android driver invocation has problem, please re-check the capabilities or Start Appium");
 				}
 				break;
 
 			case IOS:
-
 				if (Boolean.parseBoolean(mobileProperties.getProperty("InstallApplicationInDevice"))) {
-					desiredCapabilities.setCapability("app", mobileProperties.getProperty("ios_apppath"));
+					capabilities.setCapability("app", mobileProperties.getProperty("ios_apppath"));
 				}
-
 				if (!Boolean.parseBoolean(mobileProperties.getProperty("ResetApp"))) {
-					desiredCapabilities.setCapability("noReset", "true");
+					capabilities.setCapability("noReset", "true");
 				}
-				desiredCapabilities.setCapability(MobileCapabilityType.DEVICE_NAME, deviceName);
-				desiredCapabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "iOS");
-				desiredCapabilities.setCapability(MobileCapabilityType.UDID, mobileProperties.getProperty("im_udid_1"));
-				desiredCapabilities.setCapability("updatedWDABundleId", mobileProperties.getProperty("ios_bundleid"));
-				desiredCapabilities.setCapability(MobileCapabilityType.APP,
-						mobileProperties.getProperty("ios_apppath"));
-				desiredCapabilities.setCapability(MobileCapabilityType.NO_RESET,
-						mobileProperties.getProperty("ios_appreset"));
-				desiredCapabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME,
-						mobileProperties.getProperty("automationname"));
-				desiredCapabilities.setCapability("useNewWDA", mobileProperties.getProperty("false"));
+				capabilities.setCapability("deviceName", deviceName);
+				capabilities.setCapability("platformName", "iOS");
+				capabilities.setCapability("udid", mobileProperties.getProperty("im_udid_1"));
+				capabilities.setCapability("updatedWDABundleId", mobileProperties.getProperty("ios_bundleid"));
+				capabilities.setCapability("App", mobileProperties.getProperty("ios_apppath"));
+				capabilities.setCapability("noReset", mobileProperties.getProperty("ios_appreset"));
+				capabilities.setCapability("automationName", mobileProperties.getProperty("automationname"));
+				capabilities.setCapability("useNewWDA", mobileProperties.getProperty("false"));
 				try {
-					driver = new IOSDriver(new URL(appiumURL), desiredCapabilities);
+					driver = new IOSDriver(new URL(appiumURL), capabilities);
 				} catch (Exception e) {
-					throw new FrameworkException(
-							"The IOS driver invokation has problem, please re-check the capabilities or Start Appium");
+					throw new FrameworkException("The IOS driver invocation has problem, please re-check the capabilities or Start Appium");
 				}
 				break;
 
 			case WEB_ANDROID:
-
-				desiredCapabilities.setCapability("platformName", "Android");
-				desiredCapabilities.setCapability("deviceName", deviceName);
-//				desiredCapabilities.setCapability("udid", deviceName);
-				desiredCapabilities.setCapability("platformVersion", version);
-				desiredCapabilities.setCapability("browserName", "Chrome");
+				capabilities.setCapability("platformName", "Android");
+				capabilities.setCapability("deviceName", deviceName);
+				capabilities.setCapability("platformVersion", version);
+				capabilities.setCapability("browserName", "Chrome");
 				try {
-					driver = new AndroidDriver(new URL(appiumURL), desiredCapabilities);
+					driver = new AndroidDriver(new URL(appiumURL), capabilities);
 				} catch (MalformedURLException e) {
-					throw new FrameworkException(
-							"The android driver invokation has problem, please check the capabilities or Start Appium");
+					throw new FrameworkException("The android driver invocation has problem, please check the capabilities or Start Appium");
 				}
 				break;
 
 			case WEB_IOS:
-
-				desiredCapabilities.setCapability("platformName", "iOS");
-				desiredCapabilities.setCapability("platformVersion", version);
-				desiredCapabilities.setCapability("deviceName", deviceName);
-				desiredCapabilities.setCapability("udid", deviceName);
-				desiredCapabilities.setCapability("automationName", "XCUITest");
-				desiredCapabilities.setCapability("browserName", "Safari");
+				capabilities.setCapability("platformName", "iOS");
+				capabilities.setCapability("platformVersion", version);
+				capabilities.setCapability("deviceName", deviceName);
+				capabilities.setCapability("udid", deviceName);
+				capabilities.setCapability("automationName", "XCUITest");
+				capabilities.setCapability("browserName", "Safari");
 				try {
-					driver = new IOSDriver(new URL(appiumURL), desiredCapabilities);
-
+					driver = new IOSDriver(new URL(appiumURL), capabilities);
 				} catch (MalformedURLException e) {
-					throw new FrameworkException(
-							"The IOS driver invokation has problem, please check the capabilities or Start Appium");
+					throw new FrameworkException("The IOS driver invocation has problem, please check the capabilities or Start Appium");
 				}
 				break;
 
 			default:
 				throw new FrameworkException("Unhandled ExecutionMode!");
-
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			throw new FrameworkException(
-					"The appium driver invocation created a problem , please check the capabilities");
+			throw new FrameworkException("The appium driver invocation created a problem, please check the capabilities");
 		}
-
 		return driver;
-
 	}
 
 }

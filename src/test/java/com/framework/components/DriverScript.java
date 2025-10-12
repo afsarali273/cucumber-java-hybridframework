@@ -503,119 +503,118 @@ public class DriverScript {
 	 */
 	private synchronized void initializeDatatable() {
 
-		String datatablePath = frameworkParameters.getRelativePath() + Util.getFileSeparator() + "src"
-				+ Util.getFileSeparator() + "test" + Util.getFileSeparator() + "resources" + Util.getFileSeparator()
-				+ "datatables";
+        String datatablePath = frameworkParameters.getRelativePath() + Util.getFileSeparator() + "src"
+                + Util.getFileSeparator() + "test" + Util.getFileSeparator() + "resources" + Util.getFileSeparator()
+                + "datatables";
 
-		System.setProperty("reportPath", reportPath);
+        System.setProperty("reportPath", reportPath);
 
-		switch(properties.getProperty("TestData").toString()) {
+        switch (properties.getProperty("TestData").toString()) {
 
-		case "EXCEL":
-			String encryptedDatatablePath = WhitelistingPath.cleanStringForFilePath(
-					datatablePath + Util.getFileSeparator() + testParameters.getCurrentScenario() + ".xls");
+            case "EXCEL":
+                String encryptedDatatablePath = WhitelistingPath.cleanStringForFilePath(
+                        datatablePath + Util.getFileSeparator() + testParameters.getCurrentScenario() + ".xls");
 
-			String runTimeDatatablePath;
-			Boolean includeTestDataInReport = Boolean.parseBoolean(properties.getProperty("IncludeTestDataInReport"));
-			if (includeTestDataInReport) {
-				runTimeDatatablePath = reportPath + Util.getFileSeparator() + "datatables";
-				String encryptedRunTimeDatatablePath = WhitelistingPath.cleanStringForFilePath(
-						runTimeDatatablePath + Util.getFileSeparator() + testParameters.getCurrentScenario() + ".xls");
+                String runTimeDatatablePath;
+                Boolean includeTestDataInReport = Boolean.parseBoolean(properties.getProperty("IncludeTestDataInReport"));
+                if (includeTestDataInReport) {
+                    runTimeDatatablePath = reportPath + Util.getFileSeparator() + "datatables";
+                    String encryptedRunTimeDatatablePath = WhitelistingPath.cleanStringForFilePath(
+                            runTimeDatatablePath + Util.getFileSeparator() + testParameters.getCurrentScenario() + ".xls");
 
-				File runTimeDatatable = new File(encryptedRunTimeDatatablePath);
-				if (!runTimeDatatable.exists()) {
-					File datatable = new File(encryptedDatatablePath);
+                    File runTimeDatatable = new File(encryptedRunTimeDatatablePath);
+                    if (!runTimeDatatable.exists()) {
+                        File datatable = new File(encryptedDatatablePath);
 
-					try {
-						FileUtils.copyFile(datatable, runTimeDatatable);
-					} catch (IOException e) {
-						e.printStackTrace();
-						throw new FrameworkException(
-								"Error in creating run-time datatable: Copying the datatable failed...");
-					}
-				}
+                        try {
+                            FileUtils.copyFile(datatable, runTimeDatatable);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            throw new FrameworkException(
+                                    "Error in creating run-time datatable: Copying the datatable failed...");
+                        }
+                    }
 
-				String encryptedRunTimeCommonDatatable = WhitelistingPath
-						.cleanStringForFilePath(runTimeDatatablePath + Util.getFileSeparator() + "Common Testdata.xls");
-				File runTimeCommonDatatable = new File(encryptedRunTimeCommonDatatable);
-				if (!runTimeCommonDatatable.exists()) {
-					String encryptedCommonDatatable = WhitelistingPath
-							.cleanStringForFilePath(datatablePath + Util.getFileSeparator() + "Common Testdata.xls");
-					File commonDatatable = new File(encryptedCommonDatatable);
+                    String encryptedRunTimeCommonDatatable = WhitelistingPath
+                            .cleanStringForFilePath(runTimeDatatablePath + Util.getFileSeparator() + "Common Testdata.xls");
+                    File runTimeCommonDatatable = new File(encryptedRunTimeCommonDatatable);
+                    if (!runTimeCommonDatatable.exists()) {
+                        String encryptedCommonDatatable = WhitelistingPath
+                                .cleanStringForFilePath(datatablePath + Util.getFileSeparator() + "Common Testdata.xls");
+                        File commonDatatable = new File(encryptedCommonDatatable);
 
-					try {
-						FileUtils.copyFile(commonDatatable, runTimeCommonDatatable);
-					} catch (IOException e) {
-						e.printStackTrace();
-						throw new FrameworkException(
-								"Error in creating run-time datatable: Copying the common datatable failed...");
-					}
-				}
-			} else {
-				runTimeDatatablePath = datatablePath;
-			}
+                        try {
+                            FileUtils.copyFile(commonDatatable, runTimeCommonDatatable);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            throw new FrameworkException(
+                                    "Error in creating run-time datatable: Copying the common datatable failed...");
+                        }
+                    }
+                } else {
+                    runTimeDatatablePath = datatablePath;
+                }
 
-			dataTable = new FrameworkDataTable(runTimeDatatablePath, testParameters.getCurrentScenario());
-			dataTable.setDataReferenceIdentifier(properties.getProperty("DataReferenceIdentifier"));
-			dataTable.setCurrentRow(testParameters.getCurrentTestcase(), currentIteration);
-			dataTable.setCurrentTestname(testParameters.getCurrentTestcase());
-			ExcelDataAccess testDataAccess = new ExcelDataAccess(datatablePath, testParameters.getCurrentScenario());
+                dataTable = new FrameworkDataTable(runTimeDatatablePath, testParameters.getCurrentScenario());
+                dataTable.setDataReferenceIdentifier(properties.getProperty("DataReferenceIdentifier"));
+                dataTable.setCurrentRow(testParameters.getCurrentTestcase(), currentIteration);
+                dataTable.setCurrentTestname(testParameters.getCurrentTestcase());
+                ExcelDataAccess testDataAccess = new ExcelDataAccess(datatablePath, testParameters.getCurrentScenario());
 
-			dataTable.commonData = testDataAccess.readExcelValue(testParameters.getCurrentTestcase().toString(),currentIteration);
+                dataTable.commonData = testDataAccess.readExcelValue(testParameters.getCurrentTestcase().toString(), currentIteration);
 
-			break;
+                break;
 
-		case "JSON":
-			JsonData jsdata = new JsonData();
+            case "JSON":
+                JsonData jsdata = new JsonData(datatablePath, testParameters.getCurrentScenario());
 
-			dataTable = new FrameworkDataTable(datatablePath, testParameters.getCurrentScenario());
+                dataTable = new FrameworkDataTable(datatablePath, testParameters.getCurrentScenario());
 
-			dataTable.setCurrentRow(testParameters.getCurrentTestcase(), currentIteration);
-			dataTable.setCurrentTestname(testParameters.getCurrentTestcase());
-			dataTable.commonData = jsdata.readJson(datatablePath, 
-					testParameters.getCurrentScenario(),testParameters.getCurrentTestcase());
+                dataTable.setCurrentRow(testParameters.getCurrentTestcase(), currentIteration);
+                dataTable.setCurrentTestname(testParameters.getCurrentTestcase());
+                dataTable.commonData = jsdata.readJson(datatablePath,
+                        testParameters.getCurrentScenario(), testParameters.getCurrentTestcase());
 
+                break;
 
-			break;
+            case "CSV":
+                CsvReader csvRead = new CsvReader(datatablePath, testParameters.getCurrentScenario());
 
-		case "CSV":
-			CsvReader csvRead = new CsvReader();
+                dataTable = new FrameworkDataTable(datatablePath, testParameters.getCurrentScenario());
 
-			dataTable = new FrameworkDataTable(datatablePath, testParameters.getCurrentScenario());
+                dataTable.setCurrentRow(testParameters.getCurrentTestcase(), currentIteration);
+                dataTable.setCurrentTestname(testParameters.getCurrentTestcase());
+                dataTable.csvData = csvRead.readCSVasHashMap(datatablePath,
+                        testParameters.getCurrentScenario(), testParameters.getCurrentTestcase());
+                break;
 
-			dataTable.setCurrentRow(testParameters.getCurrentTestcase(), currentIteration);
-			dataTable.setCurrentTestname(testParameters.getCurrentTestcase());
-			dataTable.csvData = csvRead.readCSVasHashMap(datatablePath, 
-					testParameters.getCurrentScenario(),testParameters.getCurrentTestcase());
-			break;
+            case "ACCESSDB":
 
-		case "ACCESSDB" :
+                AccessDatabase accdb = new AccessDatabase(datatablePath + Util.getFileSeparator() + testParameters.getCurrentScenario() + ".accdb");
 
-			AccessDatabase accdb = new AccessDatabase();
+                dataTable = new FrameworkDataTable(datatablePath, testParameters.getCurrentScenario());
 
-			dataTable = new FrameworkDataTable(datatablePath, testParameters.getCurrentScenario());
+                dataTable.setCurrentRow(testParameters.getCurrentTestcase(), currentIteration);
+                dataTable.setCurrentTestname(testParameters.getCurrentTestcase());
+                try {
 
-			dataTable.setCurrentRow(testParameters.getCurrentTestcase(), currentIteration);
-			dataTable.setCurrentTestname(testParameters.getCurrentTestcase());
-			try {
+                    dataTable.commonData = accdb.executeAccessData(datatablePath,
+                            testParameters.getCurrentScenario(), testParameters.getCurrentTestcase());
 
-				dataTable.commonData = accdb.executeAccessData(datatablePath, 
-						testParameters.getCurrentScenario(),testParameters.getCurrentTestcase());
+                } catch (ClassNotFoundException | InterruptedException | SQLException e) {
+                    e.printStackTrace();
+                }
 
-			} catch (ClassNotFoundException | InterruptedException | SQLException e) {
-				e.printStackTrace();
-			}
+                break;
 
-			break;
+            default:
 
-		default:
+                throw new FrameworkException("Invalid parameters provided for datasheet in Global Settings.properties file."
+                        + " Please provide the valid data types");
 
-			throw new FrameworkException("Invalid parameters provided for datasheet in Global Settings.properties file."
-					+ " Please provide the valid data types");
+        }
 
-		}
-
-	}
+    }
 
 	/**
 	 * Function to add the exception logs
@@ -920,3 +919,4 @@ public class DriverScript {
 	}
 
 }
+

@@ -7,6 +7,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -78,7 +79,7 @@ public class Cookievalidation extends Report {
 		//	options.merge(capabilities);
 			WebDriverManager.chromedriver().setup();
 			driver = new ChromeDriver(options);
-			driver.manage().timeouts().implicitlyWait(propertiesReader.getTimeout(), TimeUnit.SECONDS);
+			driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(propertiesReader.getTimeout()));
 			driver.manage().window().maximize();
 			JavascriptExecutor js = (JavascriptExecutor) driver;
 			driver.get(url.get(i).trim());

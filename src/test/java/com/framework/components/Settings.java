@@ -31,8 +31,8 @@ import com.framework.report.Util;
  */
 public class Settings {
 	private static Properties properties = loadFromPropertiesFile();
-	private static Properties mobilePropertics = loadFromPropertiesFileForMobile();
-	private static Properties apiProperties = loadFromPropertiesFileForApi();
+	private static Properties mobilePropertics = loadFromPropertiesFileForMobileConditional();
+	private static Properties apiProperties = loadFromPropertiesFileForApiConditional();
 	private Settings() {
 		// To prevent external instantiation of this class
 	}
@@ -53,19 +53,25 @@ public class Settings {
 	 * Function to return the singleton instance of the Mobile Properties
 	 * {@link Properties} object
 	 * 
-	 * @return Instance of the {@link Properties} object
+	 * @return Instance of the {@link Properties} object or empty properties if not loaded
 	 */
 	public static Properties getMobilePropertiesInstance() {
+		if (mobilePropertics == null) {
+			return new Properties(); // Return empty properties to avoid null pointer
+		}
 		return mobilePropertics;
 	}
 	
 	/**
-	 * Function to return the singleton instance of the Mobile Properties
+	 * Function to return the singleton instance of the API Properties
 	 * {@link Properties} object
 	 * 
-	 * @return Instance of the {@link Properties} object
+	 * @return Instance of the {@link Properties} object or empty properties if not loaded
 	 */
 	public static Properties getApiPropertiesInstance() {
+		if (apiProperties == null) {
+			return new Properties(); // Return empty properties to avoid null pointer
+		}
 		return apiProperties;
 	}
 	
@@ -232,5 +238,66 @@ public class Settings {
 
 		return properties;
 
+	}
+	
+	/**
+	 * Function to load properties File specific for Mobile testing (conditional)
+	 * {@link Properties} object
+	 * 
+	 * @return Properties of Mobile Settings or null if not needed
+	 */
+	private static Properties loadFromPropertiesFileForMobileConditional() {
+		try {
+			// Check if mobile execution is needed
+			Properties globalProps = loadFromPropertiesFile();
+			String testConfigId = globalProps.getProperty("TestConfigurationID", "");
+			
+			if (!isMobileExecutionNeeded(testConfigId)) {
+				return null; // Don't load mobile properties if not needed
+			}
+			
+			return loadFromPropertiesFileForMobile();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	/**
+	 * Function to load properties File specific for API testing (conditional)
+	 * {@link Properties} object
+	 * 
+	 * @return Properties of API Settings or null if not needed
+	 */
+	private static Properties loadFromPropertiesFileForApiConditional() {
+		try {
+			// Check if API execution is needed
+			Properties globalProps = loadFromPropertiesFile();
+			String testConfigId = globalProps.getProperty("TestConfigurationID", "");
+			
+			if (!"API".equalsIgnoreCase(testConfigId)) {
+				return null; // Don't load API properties if not needed
+			}
+			
+			return loadFromPropertiesFileForApi();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	/**
+	 * Check if mobile execution is needed based on TestConfigurationID
+	 * 
+	 * @param testConfigId Test configuration ID
+	 * @return true if mobile execution is detected
+	 */
+	private static boolean isMobileExecutionNeeded(String testConfigId) {
+		return testConfigId != null && 
+			   (testConfigId.contains("Appium") || 
+				testConfigId.contains("Mobile") ||
+				testConfigId.contains("MOBILE") ||
+				testConfigId.contains("Android") ||
+				testConfigId.contains("iOS"));
 	}
 }

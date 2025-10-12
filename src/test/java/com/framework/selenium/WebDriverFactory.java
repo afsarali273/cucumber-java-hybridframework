@@ -29,12 +29,11 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.edge.EdgeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxOptions;
 import org.openqa.selenium.ie.InternetExplorerDriver;
-import org.openqa.selenium.phantomjs.PhantomJSDriver;
 import org.openqa.selenium.remote.AbstractDriverOptions;
-import org.openqa.selenium.remote.CapabilityType;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 
 import com.framework.components.FrameworkException;
@@ -73,23 +72,14 @@ public class WebDriverFactory {
 	public static WebDriver getWebDriver(SeleniumTestParameters testParameters) {
 		WebDriver driver = null;
 		properties = Settings.getInstance();
-		
 		String fileSeparator = File.separator;
-		
-//		downloadPath = TestNGListener.resultFolder.replace("/", "\\");
-//		downloadPath +=  fileSeparator + "downloads" + fileSeparator + testParameters.getBrowserAndPlatform() + fileSeparator + testParameters.getScenario().getName()
-//				+ fileSeparator + testParameters.getScenario().getId();
-//		new File(downloadPath).mkdirs();
 		Browser browser = testParameters.getBrowser();
 		switch (browser) {
 		case CHROME:
+			//WebDriverManager.chromedriver().setup();
+			// set chrome driver path
 			System.setProperty("webdriver.chrome.driver", "/usr/local/bin/chromedriver");
 
-			//WebDriverManager.chromedriver().browserVersion("141").forceDownload().setup();
-			//WebDriverManager.chromedriver().setup();
-
-			@SuppressWarnings("rawtypes")
-	//		AbstractDriverOptions chrome;
 			ChromeOptions chrome = new ChromeOptions();
 			chrome.addArguments("--ignore-certificate-errors");
 			chrome.addArguments("--test-type");
@@ -102,40 +92,23 @@ public class WebDriverFactory {
 			chrome.addArguments("--disable-notifications");
 			chrome.addArguments("--disable-component-update");
 			chrome.addArguments("--remote-allow-origins=*");
-			// option to prevent crash due to DevToolsActivePort
 			chrome.addArguments("--no-sandbox");
 			chrome.addArguments("--disable-dev-shm-usage");
-			// suppress download pop-up
 			chrome.addArguments("--safebrowsing-disable-download-protection");
 			chrome.addArguments("--safebrowsing-disable-extension-blacklist");
 			if (downloadPath != null) {
 				// Setting new download directory path and download options
-				Map<String, Object> prefs = new HashMap<String, Object>();
+				Map<String, Object> prefs = new HashMap<>();
 				prefs.put("download.default_directory", downloadPath);
 				prefs.put("profile.content_settings.exceptions.automatic_downloads.*.setting", 1);
 				prefs.put("download.prompt_for_download", false);
 				prefs.put("safebrowsing.enabled", "false");
 			    prefs.put("plugins.plugins_disabled", new String[] { "Chrome PDF Viewer" });
 			    prefs.put("plugins.always_open_pdf_externally", true);
-//				prefs.put("safebrowsing.enabled", false);
 				chrome.setExperimentalOption("prefs", prefs);
 			}
-
-			DesiredCapabilities capabilities = new DesiredCapabilities();
-			capabilities.setCapability(ChromeOptions.CAPABILITY, chrome);
-			chrome.merge(capabilities);
-//			 driver = new ChromeDriver(chrome);
-
-//			prefs.put("download.default_directory",downloadPath+"\\");
-//			prefs.put("safebrowsing.enabled", "false");
-//			prefs.put("plugins.plugins_disabled", new String[] { "Chrome PDF Viewer" });
-//			prefs.put("plugins.always_open_pdf_externally", true);
-//			prefs.put("profile.default_content_setting_values.automatic_downloads", 1);
-//			chrome.setExperimentalOption("prefs", prefs);
-
 			driver = new ChromeDriver(chrome);
 			break;
-
         case CHROME_MOBILE_EMULATION:
             // Takes the system proxy settings automatically
             WebDriverManager.chromedriver().setup();
@@ -145,76 +118,43 @@ public class WebDriverFactory {
             options.setExperimentalOption("mobileEmulation", mobileEmulation);
             driver = new ChromeDriver(options);
             break;
-            
-		case CHROME_HEADLESS:
-
-			WebDriverManager.chromedriver().setup();
-			ChromeOptions chromeOptions = new ChromeOptions();
-			Map<String, Object> prefsHeadless = new HashMap<String, Object>();
-			prefsHeadless.put("download.default_directory",downloadPath+"\\");
-			prefsHeadless.put("safebrowsing.enabled", "false"); 
-			prefsHeadless.put("plugins.plugins_disabled", new String[] { "Chrome PDF Viewer" });
-			prefsHeadless.put("plugins.always_open_pdf_externally", true);
-			prefsHeadless.put("profile.default_content_setting_values.automatic_downloads", 1);
-			chromeOptions.setExperimentalOption("prefs", prefsHeadless);
-			chromeOptions.addArguments("--headless");
-			chromeOptions.addArguments("--window-size=1920,1080");
-			driver = new ChromeDriver(chromeOptions);
-			break;
-
+        case CHROME_HEADLESS:
+            WebDriverManager.chromedriver().setup();
+            ChromeOptions chromeOptions = new ChromeOptions();
+            Map<String, Object> prefsHeadless = new HashMap<>();
+            prefsHeadless.put("download.default_directory", downloadPath + fileSeparator);
+            prefsHeadless.put("safebrowsing.enabled", "false");
+            prefsHeadless.put("plugins.plugins_disabled", new String[] { "Chrome PDF Viewer" });
+            prefsHeadless.put("plugins.always_open_pdf_externally", true);
+            prefsHeadless.put("profile.default_content_setting_values.automatic_downloads", 1);
+            chromeOptions.setExperimentalOption("prefs", prefsHeadless);
+            chromeOptions.addArguments("--headless");
+            chromeOptions.addArguments("--window-size=1920,1080");
+            driver = new ChromeDriver(chromeOptions);
+            break;
 		case FIREFOX:
 			// Takes the system proxy settings automatically
 			WebDriverManager.firefoxdriver().setup();
-			driver = new FirefoxDriver();
+			FirefoxOptions firefoxOptions = new FirefoxOptions();
+			driver = new FirefoxDriver(firefoxOptions);
 			break;
-
-		case GHOST_DRIVER:
-			// Takes the system proxy settings automatically (I think!)
-
-			System.setProperty("phantomjs.binary.path", properties.getProperty("PhantomJSPath"));
-			driver = new PhantomJSDriver();
-			break;
-
 		case INTERNET_EXPLORER:
 			// Takes the system proxy settings automatically
 
 			WebDriverManager.iedriver().setup();
 			driver = new InternetExplorerDriver();
 			break;
-
 		case EDGE:
 			// Takes the system proxy settings automatically
 
 			WebDriverManager.edgedriver().setup();
-			driver = new EdgeDriver();
+			EdgeOptions edgeOptions = new EdgeOptions();
+			driver = new EdgeDriver(edgeOptions);
 			break;
-
 		default:
 			throw new FrameworkException("Unhandled browser!");
 		}
-
 		return driver;
-	}
-	/**
-	 * Function to return the Desired Capabilities {@link DesiredCapabilities} 
-	 * 
-	
-	 * @return The corresponding {@link DesiredCapabilities} object
-	 */
-	private static DesiredCapabilities getProxyCapabilities() {
-		properties = Settings.getInstance();
-		String proxyUrl = properties.getProperty("ProxyHost") + ":" + properties.getProperty("ProxyPort");
-
-		Proxy proxy = new Proxy();
-		proxy.setProxyType(ProxyType.MANUAL);
-		proxy.setHttpProxy(proxyUrl);
-		proxy.setFtpProxy(proxyUrl);
-		proxy.setSslProxy(proxyUrl);
-
-		DesiredCapabilities desiredCapabilities = new DesiredCapabilities();
-		desiredCapabilities.setCapability(CapabilityType.PROXY, proxy);
-
-		return desiredCapabilities;
 	}
 
 	/**
@@ -228,44 +168,50 @@ public class WebDriverFactory {
 	 *                       execution
 	 * @return The corresponding {@link RemoteWebDriver} object
 	 */
-	public static WebDriver getRemoteWebDriver(Browser browser, String browserVersion, Platform platform,
-			String remoteUrl) {
-		// For running RemoteWebDriver tests in Chrome and IE:
-		// The ChromeDriver and IEDriver executables needs to be in the PATH of
-		// the remote machine
-		// To set the executable path manually, use:
-		// java -Dwebdriver.chrome.driver=/path/to/driver -jar
-		// selenium-server-standalone.jar
-		// java -Dwebdriver.ie.driver=/path/to/driver -jar
-		// selenium-server-standalone.jar
-
+	public static WebDriver getRemoteWebDriver(Browser browser, String browserVersion, Platform platform, String remoteUrl) {
 		properties = Settings.getInstance();
-
 		boolean proxyRequired = Boolean.parseBoolean(properties.getProperty("ProxyRequired"));
-
-		DesiredCapabilities desiredCapabilities = null;
-		if (proxyRequired) {
-			desiredCapabilities = getProxyCapabilities();
-		} else {
-			desiredCapabilities = new DesiredCapabilities();
+		AbstractDriverOptions<?> options;
+		switch (browser) {
+			case CHROME:
+				ChromeOptions chromeOptions = new ChromeOptions();
+				if (browserVersion != null) chromeOptions.setBrowserVersion(browserVersion);
+				if (platform != null) chromeOptions.setPlatformName(platform.name());
+				if (proxyRequired) chromeOptions.setProxy(getProxy());
+				options = chromeOptions;
+				break;
+			case FIREFOX:
+				FirefoxOptions firefoxOptions = new FirefoxOptions();
+				if (browserVersion != null) firefoxOptions.setBrowserVersion(browserVersion);
+				if (platform != null) firefoxOptions.setPlatformName(platform.name());
+				if (proxyRequired) firefoxOptions.setProxy(getProxy());
+				options = firefoxOptions;
+				break;
+			case EDGE:
+				EdgeOptions edgeOptions = new EdgeOptions();
+				if (browserVersion != null) edgeOptions.setBrowserVersion(browserVersion);
+				if (platform != null) edgeOptions.setPlatformName(platform.name());
+				if (proxyRequired) edgeOptions.setProxy(getProxy());
+				options = edgeOptions;
+				break;
+			default:
+				throw new FrameworkException("Unhandled browser for remote!");
 		}
-
-		desiredCapabilities.setBrowserName(browser.getValue());
-
-		if (browserVersion != null) {
-			desiredCapabilities.setVersion(browserVersion);
-		}
-		if (platform != null) {
-			desiredCapabilities.setPlatform(platform);
-		}
-
-		desiredCapabilities.setJavascriptEnabled(true); // Pre-requisite for
-														// remote execution
-
 		URL url = getUrl(remoteUrl);
-
-		return new RemoteWebDriver(url, desiredCapabilities);
+		return new RemoteWebDriver(url, options);
 	}
+
+	private static Proxy getProxy() {
+		properties = Settings.getInstance();
+		String proxyUrl = properties.getProperty("ProxyHost") + ":" + properties.getProperty("ProxyPort");
+		Proxy proxy = new Proxy();
+		proxy.setProxyType(ProxyType.MANUAL);
+		proxy.setHttpProxy(proxyUrl);
+		proxy.setFtpProxy(proxyUrl);
+		proxy.setSslProxy(proxyUrl);
+		return proxy;
+	}
+
 	/**
 	 * Function to return the URL {@link URL} 
 	 * 
@@ -445,3 +391,4 @@ public class WebDriverFactory {
 	}
 
 }
+

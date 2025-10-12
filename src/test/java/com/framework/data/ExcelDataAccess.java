@@ -53,7 +53,7 @@ public class ExcelDataAccess {
 
 	/**
 	 * Function to get the Excel sheet name
-	 * 
+	 *
 	 * @return The Excel sheet name
 	 */
 	public String getDatasheetName() {
@@ -62,9 +62,8 @@ public class ExcelDataAccess {
 
 	/**
 	 * Function to set the Excel sheet name
-	 * 
-	 * @param datasheetName
-	 *            The Excel sheet name
+	 *
+	 * @param datasheetName The Excel sheet name
 	 */
 	public void setDatasheetName(String datasheetName) {
 		this.datasheetName = datasheetName;
@@ -72,13 +71,11 @@ public class ExcelDataAccess {
 
 	/**
 	 * Constructor to initialize the excel data filepath and filename
-	 * 
-	 * @param filePath
-	 *            The absolute path where the excel data file is stored
-	 * @param fileName
-	 *            The name of the excel data file (without the extension). Note
-	 *            that .xlsx files are not supported, only .xls files are
-	 *            supported
+	 *
+	 * @param filePath The absolute path where the excel data file is stored
+	 * @param fileName The name of the excel data file (without the extension). Note
+	 *                 that .xlsx files are not supported, only .xls files are
+	 *                 supported
 	 */
 	public ExcelDataAccess(String filePath, String fileName) {
 		this.filePath = filePath;
@@ -87,7 +84,6 @@ public class ExcelDataAccess {
 
 	/**
 	 * Function to check Excel datasheet name is set or not
-	 * 
 	 */
 	private void checkPreRequisites() {
 		if (datasheetName == null) {
@@ -97,7 +93,8 @@ public class ExcelDataAccess {
 
 	/**
 	 * Function to read the excel file using HSSWorkbook
-	 * @return 
+	 *
+	 * @return
 	 */
 	private HSSFWorkbook openFileForReading() {
 
@@ -128,7 +125,7 @@ public class ExcelDataAccess {
 
 	/**
 	 * Function to write a value into Excel workbook.
-	 * 
+	 *
 	 * @param workbook - The sheet name to write the value
 	 */
 	private void writeIntoFile(HSSFWorkbook workbook) {
@@ -156,7 +153,7 @@ public class ExcelDataAccess {
 
 	/**
 	 * Function to get the sheet name from excel work book
-	 * 
+	 *
 	 * @param workbook
 	 * @return
 	 */
@@ -173,15 +170,12 @@ public class ExcelDataAccess {
 	/**
 	 * Function to search for a specified key within a column, and return the
 	 * corresponding row number
-	 * 
-	 * @param key
-	 *            The value being searched for
-	 * @param columnNum
-	 *            The column number in which the key should be searched
-	 * @param startRowNum
-	 *            The row number from which the search should start
+	 *
+	 * @param key         The value being searched for
+	 * @param columnNum   The column number in which the key should be searched
+	 * @param startRowNum The row number from which the search should start
 	 * @return The row number in which the specified key is found (-1 if the key
-	 *         is not found)
+	 * is not found)
 	 */
 	public int getRowNum(String key, int columnNum, int startRowNum) {
 		checkPreRequisites();
@@ -211,32 +205,33 @@ public class ExcelDataAccess {
 	 * switch(formulaEvaluator.evaluate(cell).getCellType()) { case
 	 * HSSFCell.CELL_TYPE_BLANK: case HSSFCell.CELL_TYPE_STRING:
 	 * System.out.print("string: "); return cell.getStringCellValue().trim();
-	 * 
+	 *
 	 * case HSSFCell.CELL_TYPE_BOOLEAN: System.out.print("bool: "); return
 	 * Boolean.toString(cell.getBooleanCellValue());
-	 * 
+	 *
 	 * case HSSFCell.CELL_TYPE_NUMERIC: if
 	 * (HSSFDateUtil.isCellDateFormatted(cell)) { System.out.print("date: ");
 	 * return cell.getDateCellValue().toString(); } else { System.out.print(
 	 * "numeric: "); return Double.toString(cell.getNumericCellValue()); }
-	 * 
+	 *
 	 * case HSSFCell.CELL_TYPE_ERROR: System.out.print("error: "); throw new
 	 * FrameworkException("Error in formula within this cell! " + "Error code: "
 	 * + cell.getErrorCellValue());
-	 * 
+	 *
 	 * //case HSSFCell.CELL_TYPE_FORMULA: // This will never occur!
-	 * 
+	 *
 	 * default: throw new FrameworkException("Unhandled cell type!"); } } }
 	 */
 
 	/**
 	 * Function to get a cell value as String
-	 * @param cell The cell number
+	 *
+	 * @param cell             The cell number
 	 * @param formulaEvaluator
 	 * @return
 	 */
 	private String getCellValueAsString(HSSFCell cell, FormulaEvaluator formulaEvaluator) {
-		if (cell == null || cell.getCellType() ==CellType.BLANK) {
+		if (cell == null || cell.getCellType() == CellType.BLANK) {
 			return "";
 		} else {
 			if (formulaEvaluator.evaluate(cell).getCellType() == CellType.ERROR) {
@@ -252,13 +247,11 @@ public class ExcelDataAccess {
 	/**
 	 * Function to search for a specified key within a column, and return the
 	 * corresponding row number
-	 * 
-	 * @param key
-	 *            The value being searched for
-	 * @param columnNum
-	 *            The column number in which the key should be searched
+	 *
+	 * @param key       The value being searched for
+	 * @param columnNum The column number in which the key should be searched
 	 * @return The row number in which the specified key is found (-1 if the key
-	 *         is not found)
+	 * is not found)
 	 */
 	public int getRowNum(String key, int columnNum) {
 		return getRowNum(key, columnNum, 0);
@@ -266,7 +259,7 @@ public class ExcelDataAccess {
 
 	/**
 	 * Function to get the last row number within the worksheet
-	 * 
+	 *
 	 * @return The last row number within the worksheet
 	 */
 	public int getLastRowNum() {
@@ -281,13 +274,10 @@ public class ExcelDataAccess {
 	/**
 	 * Function to search for a specified key within a column, and return the
 	 * corresponding occurence count
-	 * 
-	 * @param key
-	 *            The value being searched for
-	 * @param columnNum
-	 *            The column number in which the key should be searched
-	 * @param startRowNum
-	 *            The row number from which the search should start
+	 *
+	 * @param key         The value being searched for
+	 * @param columnNum   The column number in which the key should be searched
+	 * @param startRowNum The row number from which the search should start
 	 * @return The occurence count of the specified key
 	 */
 	public int getRowCount(String key, int columnNum, int startRowNum) {
@@ -323,11 +313,9 @@ public class ExcelDataAccess {
 	/**
 	 * Function to search for a specified key within a column, and return the
 	 * corresponding occurence count
-	 * 
-	 * @param key
-	 *            The value being searched for
-	 * @param columnNum
-	 *            The column number in which the key should be searched
+	 *
+	 * @param key       The value being searched for
+	 * @param columnNum The column number in which the key should be searched
 	 * @return The occurence count of the specified key
 	 */
 	public int getRowCount(String key, int columnNum) {
@@ -337,13 +325,11 @@ public class ExcelDataAccess {
 	/**
 	 * Function to search for a specified key within a row, and return the
 	 * corresponding column number
-	 * 
-	 * @param key
-	 *            The value being searched for
-	 * @param rowNum
-	 *            The row number in which the key should be searched
+	 *
+	 * @param key    The value being searched for
+	 * @param rowNum The row number in which the key should be searched
 	 * @return The column number in which the specified key is found (-1 if the
-	 *         key is not found)
+	 * key is not found)
 	 */
 	public int getColumnNum(String key, int rowNum) {
 		checkPreRequisites();
@@ -370,11 +356,9 @@ public class ExcelDataAccess {
 	/**
 	 * Function to get the value in the cell identified by the specified row and
 	 * column numbers
-	 * 
-	 * @param rowNum
-	 *            The row number of the cell
-	 * @param columnNum
-	 *            The column number of the cell
+	 *
+	 * @param rowNum    The row number of the cell
+	 * @param columnNum The column number of the cell
 	 * @return The value present in the cell
 	 */
 	public String getValue(int rowNum, int columnNum) {
@@ -392,11 +376,9 @@ public class ExcelDataAccess {
 	/**
 	 * Function to get the value in the cell identified by the specified row
 	 * number and column header
-	 * 
-	 * @param rowNum
-	 *            The row number of the cell
-	 * @param columnHeader
-	 *            The column header of the cell
+	 *
+	 * @param rowNum       The row number of the cell
+	 * @param columnHeader The column header of the cell
 	 * @return The value present in the cell
 	 */
 	public String getValue(int rowNum, String columnHeader) {
@@ -434,7 +416,7 @@ public class ExcelDataAccess {
 	/**
 	 * Function to get the value in the cell identified by the specified row
 	 * number and column header
-	 * 
+	 *
 	 * @param currentIteration
 	 * @param currentTestcase
 	 * @return The value present in the cell
@@ -455,9 +437,9 @@ public class ExcelDataAccess {
 
 			FormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
 
-			int rowNum = getRowNum(currentTestcase, 0, 1); 
+			int rowNum = getRowNum(currentTestcase, 0, 1);
 
-			if(rowNum == -1) {
+			if (rowNum == -1) {
 				System.out.println(currentTestcase + " is not found in the sheet " + workbook.getSheetName(i));
 			} else {
 				String column;
@@ -488,16 +470,14 @@ public class ExcelDataAccess {
 	/**
 	 * Function to get the value in the cell identified by the specified row
 	 * number and column header
-	 * 
-	 * @param currentTestcase
-	 *            The row number of the cell
-	 * @param currentIteration
-	 *            The column header of the cell
+	 *
+	 * @param currentTestcase  The row number of the cell
+	 * @param currentIteration The column header of the cell
 	 * @return The value present in the cell
 	 */
-	public HashMap<String,HashMap<String, HashMap<String, String>>> readExcelValues(String currentTestcase, int currentIteration) {
+	public HashMap<String, HashMap<String, HashMap<String, String>>> readExcelValues(String currentTestcase, int currentIteration) {
 
-		HashMap<String,HashMap<String, HashMap<String, String>>> datamap = new HashMap<String,HashMap<String, HashMap<String, String>>>();
+		HashMap<String, HashMap<String, HashMap<String, String>>> datamap = new HashMap<String, HashMap<String, HashMap<String, String>>>();
 		HSSFWorkbook workbook = openFileForReading();
 		for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
 			HSSFSheet worksheet = workbook.getSheet(workbook.getSheetName(i));
@@ -506,7 +486,7 @@ public class ExcelDataAccess {
 			String column;
 			String value;
 			int startRowNum = 1;
-			HashMap<String,HashMap<String, String>> map = new HashMap<String,HashMap<String, String>>();
+			HashMap<String, HashMap<String, String>> map = new HashMap<String, HashMap<String, String>>();
 			for (int currentRowNum = startRowNum; currentRowNum <= worksheet.getLastRowNum(); currentRowNum++) {
 				HSSFRow row = worksheet.getRow(currentRowNum);
 				HSSFCell cells = row.getCell(0);
@@ -519,21 +499,23 @@ public class ExcelDataAccess {
 					value = getCellValueAsString(cellValue, formulaEvaluator);
 					cellmap.put(column, value);
 				}
-				if(cellmap.containsKey("SubIteration")) {
-					map.put(currentValue+"_"+cellmap.get("SubIteration"), cellmap);
+				if (cellmap.containsKey("SubIteration")) {
+					map.put(currentValue + "_" + cellmap.get("SubIteration"), cellmap);
 				} else {
-					map.put(currentValue+"_1", cellmap);
+					map.put(currentValue + "_1", cellmap);
 				}
-				
+
 			}
 			datamap.put(workbook.getSheetName(i), map);
 		}
 		return datamap;
 
 	}
+
 	/**
 	 * Function to apply cell style(Formatting)
-	 * @param workbook - The work book name
+	 *
+	 * @param workbook       - The work book name
 	 * @param cellFormatting - Cell format
 	 * @return
 	 */
@@ -560,13 +542,10 @@ public class ExcelDataAccess {
 	/**
 	 * Function to set the specified value in the cell identified by the
 	 * specified row and column numbers
-	 * 
-	 * @param rowNum
-	 *            The row number of the cell
-	 * @param columnNum
-	 *            The column number of the cell
-	 * @param value
-	 *            The value to be set in the cell
+	 *
+	 * @param rowNum    The row number of the cell
+	 * @param columnNum The column number of the cell
+	 * @param value     The value to be set in the cell
 	 */
 	public void setValue(int rowNum, int columnNum, String value) {
 		setValue(rowNum, columnNum, value, null);
@@ -575,15 +554,11 @@ public class ExcelDataAccess {
 	/**
 	 * Function to set the specified value in the cell identified by the
 	 * specified row and column numbers
-	 * 
-	 * @param rowNum
-	 *            The row number of the cell
-	 * @param columnNum
-	 *            The column number of the cell
-	 * @param value
-	 *            The value to be set in the cell
-	 * @param cellFormatting
-	 *            The {@link ExcelCellFormatting} to be applied to the cell
+	 *
+	 * @param rowNum         The row number of the cell
+	 * @param columnNum      The column number of the cell
+	 * @param value          The value to be set in the cell
+	 * @param cellFormatting The {@link ExcelCellFormatting} to be applied to the cell
 	 */
 	public void setValue(int rowNum, int columnNum, String value, ExcelCellFormatting cellFormatting) {
 		checkPreRequisites();
@@ -607,13 +582,10 @@ public class ExcelDataAccess {
 	/**
 	 * Function to set the specified value in the cell identified by the
 	 * specified row number and column header
-	 * 
-	 * @param rowNum
-	 *            The row number of the cell
-	 * @param columnHeader
-	 *            The column header of the cell
-	 * @param value
-	 *            The value to be set in the cell
+	 *
+	 * @param rowNum       The row number of the cell
+	 * @param columnHeader The column header of the cell
+	 * @param value        The value to be set in the cell
 	 */
 	public void setValue(int rowNum, String columnHeader, String value) {
 		setValue(rowNum, columnHeader, value, null);
@@ -622,15 +594,11 @@ public class ExcelDataAccess {
 	/**
 	 * Function to set the specified value in the cell identified by the
 	 * specified row number and column header
-	 * 
-	 * @param rowNum
-	 *            The row number of the cell
-	 * @param columnHeader
-	 *            The column header of the cell
-	 * @param value
-	 *            The value to be set in the cell
-	 * @param cellFormatting
-	 *            The {@link ExcelCellFormatting} to be applied to the cell
+	 *
+	 * @param rowNum         The row number of the cell
+	 * @param columnHeader   The column header of the cell
+	 * @param value          The value to be set in the cell
+	 * @param cellFormatting The {@link ExcelCellFormatting} to be applied to the cell
 	 */
 	public void setValue(int rowNum, String columnHeader, String value, ExcelCellFormatting cellFormatting) {
 		checkPreRequisites();
@@ -675,13 +643,10 @@ public class ExcelDataAccess {
 	/**
 	 * Function to set a hyperlink in the cell identified by the specified row
 	 * and column numbers
-	 * 
-	 * @param rowNum
-	 *            The row number of the cell
-	 * @param columnNum
-	 *            The column number of the cell
-	 * @param linkAddress
-	 *            The link address to be set
+	 *
+	 * @param rowNum      The row number of the cell
+	 * @param columnNum   The column number of the cell
+	 * @param linkAddress The link address to be set
 	 */
 	public void setHyperlink(int rowNum, int columnNum, String linkAddress) {
 		checkPreRequisites();
@@ -703,8 +668,9 @@ public class ExcelDataAccess {
 
 	/**
 	 * Function to update hyper link in a cell
-	 * @param workbook - The work book name
-	 * @param cell - cell number
+	 *
+	 * @param workbook    - The work book name
+	 * @param cell        - cell number
 	 * @param linkAddress - URL to set
 	 */
 	private void setCellHyperlink(HSSFWorkbook workbook, HSSFCell cell, String linkAddress) {
@@ -725,13 +691,10 @@ public class ExcelDataAccess {
 	/**
 	 * Function to set a hyperlink in the cell identified by the specified row
 	 * number and column header
-	 * 
-	 * @param rowNum
-	 *            The row number of the cell
-	 * @param columnHeader
-	 *            The column header of the cell
-	 * @param linkAddress
-	 *            The link address to be set
+	 *
+	 * @param rowNum       The row number of the cell
+	 * @param columnHeader The column header of the cell
+	 * @param linkAddress  The link address to be set
 	 */
 	public void setHyperlink(int rowNum, String columnHeader, String linkAddress) {
 		checkPreRequisites();
@@ -783,9 +746,8 @@ public class ExcelDataAccess {
 
 	/**
 	 * Function to add a sheet to the Excel workbook
-	 * 
-	 * @param sheetName
-	 *            The sheet name to be added
+	 *
+	 * @param sheetName The sheet name to be added
 	 */
 	public void addSheet(String sheetName) {
 		HSSFWorkbook workbook = openFileForReading();
@@ -800,7 +762,7 @@ public class ExcelDataAccess {
 
 	/**
 	 * Function to add a new row to the Excel worksheet
-	 * 
+	 *
 	 * @return The row number of the newly added row
 	 */
 	public int addRow() {
@@ -819,9 +781,8 @@ public class ExcelDataAccess {
 
 	/**
 	 * Function to add a new column to the Excel worksheet
-	 * 
-	 * @param columnHeader
-	 *            The column header to be added
+	 *
+	 * @param columnHeader The column header to be added
 	 */
 	public void addColumn(String columnHeader) {
 		addColumn(columnHeader, null);
@@ -829,12 +790,10 @@ public class ExcelDataAccess {
 
 	/**
 	 * Function to add a new column to the Excel worksheet
-	 * 
-	 * @param columnHeader
-	 *            The column header to be added
-	 * @param cellFormatting
-	 *            The {@link ExcelCellFormatting} to be applied to the column
-	 *            header
+	 *
+	 * @param columnHeader   The column header to be added
+	 * @param cellFormatting The {@link ExcelCellFormatting} to be applied to the column
+	 *                       header
 	 */
 	public void addColumn(String columnHeader, ExcelCellFormatting cellFormatting) {
 		checkPreRequisites();
@@ -864,11 +823,9 @@ public class ExcelDataAccess {
 	/**
 	 * Function to set a specified color at the specified index within the
 	 * custom palette
-	 * 
-	 * @param index
-	 *            The index at which the color should be set within the palette
-	 * @param hexColor
-	 *            The hex value of the color to be set within the palette
+	 *
+	 * @param index    The index at which the color should be set within the palette
+	 * @param hexColor The hex value of the color to be set within the palette
 	 */
 	public void setCustomPaletteColor(short index, String hexColor) {
 		HSSFWorkbook workbook = openFileForReading();
@@ -887,15 +844,11 @@ public class ExcelDataAccess {
 
 	/**
 	 * Function to merge the specified range of cells (all inputs are 0-based)
-	 * 
-	 * @param firstRow
-	 *            The first row
-	 * @param lastRow
-	 *            The last row
-	 * @param firstCol
-	 *            The first column
-	 * @param lastCol
-	 *            The last column
+	 *
+	 * @param firstRow The first row
+	 * @param lastRow  The last row
+	 * @param firstCol The first column
+	 * @param lastCol  The last column
 	 */
 	public void mergeCells(int firstRow, int lastRow, int firstCol, int lastCol) {
 		checkPreRequisites();
@@ -912,10 +865,9 @@ public class ExcelDataAccess {
 	/**
 	 * Function to specify whether the row summaries appear below the detail
 	 * within an outline (grouped set of rows)
-	 * 
-	 * @param rowSumsBelow
-	 *            Boolean value to specify row summaries below detail within an
-	 *            outline
+	 *
+	 * @param rowSumsBelow Boolean value to specify row summaries below detail within an
+	 *                     outline
 	 */
 	public void setRowSumsBelow(boolean rowSumsBelow) {
 		checkPreRequisites();
@@ -930,11 +882,9 @@ public class ExcelDataAccess {
 
 	/**
 	 * Function to outline (i.e., group together) the specified rows
-	 * 
-	 * @param firstRow
-	 *            The first row
-	 * @param lastRow
-	 *            The last row
+	 *
+	 * @param firstRow The first row
+	 * @param lastRow  The last row
 	 */
 	public void groupRows(int firstRow, int lastRow) {
 		checkPreRequisites();
@@ -950,11 +900,9 @@ public class ExcelDataAccess {
 	/**
 	 * Function to automatically adjust the column width to fit the contents for
 	 * the specified range of columns (all inputs are 0-based)
-	 * 
-	 * @param firstCol
-	 *            The first column
-	 * @param lastCol
-	 *            The last column
+	 *
+	 * @param firstCol The first column
+	 * @param lastCol  The last column
 	 */
 	public void autoFitContents(int firstCol, int lastCol) {
 		checkPreRequisites();
@@ -980,11 +928,9 @@ public class ExcelDataAccess {
 	/**
 	 * Function to add an outer border around the specified range of columns
 	 * (all inputs are 0-based)
-	 * 
-	 * @param firstCol
-	 *            The first column
-	 * @param lastCol
-	 *            The last column
+	 *
+	 * @param firstCol The first column
+	 * @param lastCol  The last column
 	 */
 	public void addOuterBorder(int firstCol, int lastCol) {
 		checkPreRequisites();
@@ -1005,15 +951,11 @@ public class ExcelDataAccess {
 	/**
 	 * Function to add an outer border around the specified range of columns
 	 * (all inputs are 0-based)
-	 * 
-	 * @param firstRow
-	 *            The first row
-	 * @param lastRow
-	 *            The last row
-	 * @param firstCol
-	 *            The first column
-	 * @param lastCol
-	 *            The last column
+	 *
+	 * @param firstRow The first row
+	 * @param lastRow  The last row
+	 * @param firstCol The first column
+	 * @param lastCol  The last column
 	 */
 	public void addOuterBorder(int firstRow, int lastRow, int firstCol, int lastCol) {
 		checkPreRequisites();
@@ -1037,7 +979,8 @@ public class ExcelDataAccess {
 
 	/**
 	 * Function to get value for specific row
-	 * @param keys Keys as arrays
+	 *
+	 * @param keys   Keys as arrays
 	 * @param rowNum - The row number
 	 * @return The values in hashmap
 	 */
@@ -1061,15 +1004,16 @@ public class ExcelDataAccess {
 
 	/**
 	 * Function to get values for a cell
+	 *
 	 * @param hrow
-	 * @param row - The row number
-	 * @param columnHeader - The column header
+	 * @param row              - The row number
+	 * @param columnHeader     - The column header
 	 * @param formulaEvaluator
 	 * @param length
 	 * @return
 	 */
 	private String getValue(HSSFRow hrow, HSSFRow row, String columnHeader, FormulaEvaluator formulaEvaluator,
-			int length) {
+							int length) {
 		int columnNum = -1;
 		String currentValue;
 
@@ -1096,56 +1040,52 @@ public class ExcelDataAccess {
 
 	/**
 	 * Function to update excel cell value
-	 * 
-	 * @param filepath
-	 * 				The folder path to create excel file
-	 * @param currentTestname
-	 * 				Current test case name
-	 * @param columnname
-	 * 				The column header
-	 * @param value
-	 * 			The value to update excel sheet
+	 *
+	 * @param filepath        The folder path to create excel file
+	 * @param currentTestname Current test case name
+	 * @param columnname      The column header
+	 * @param value           The value to update excel sheet
 	 */
 	public void updateExcel(String filepath, String currentTestname, String columnname, String value) {
 
 		String filename = filepath + Util.getFileSeparator() + "Output.xls";
 
-		try  {	
+		try {
 
 			if (!new File(filename).exists()) {
 
-				createOutputExcel(filename,columnname);	
+				createOutputExcel(filename, columnname);
 
 			}
 
 			FileInputStream fileInputStream = new FileInputStream(filename);
-			HSSFWorkbook workbook = new HSSFWorkbook(fileInputStream);  
+			HSSFWorkbook workbook = new HSSFWorkbook(fileInputStream);
 			HSSFSheet sheet = workbook.getSheet("OutputData");
 			int rowNumber = 0;
 			int columnNumber = 0;
 			boolean flagHeader = false;
-			HSSFRow columnHeader = sheet.getRow(0);  
-			for(int col=0; col< columnHeader.getLastCellNum(); col++){
+			HSSFRow columnHeader = sheet.getRow(0);
+			for (int col = 0; col < columnHeader.getLastCellNum(); col++) {
 				Cell cell = columnHeader.getCell(col);
 				String colName = cell.getStringCellValue();
-				if(colName.equals(columnname)) {
+				if (colName.equals(columnname)) {
 					columnNumber = col;
 					flagHeader = true;
 					break;
-				}	   
+				}
 			}
 
-			if(!flagHeader) {
+			if (!flagHeader) {
 				columnNumber = columnHeader.getLastCellNum();
 				columnHeader.createCell(columnHeader.getLastCellNum()).setCellValue(columnname);
 			}
 
 			boolean flagTestcase = false;
-			for(int j = 0; j<sheet.getLastRowNum()+1;j++) {
+			for (int j = 0; j < sheet.getLastRowNum() + 1; j++) {
 				HSSFRow testRow = sheet.getRow(j);
 				Cell cell = testRow.getCell(0);
 				String rowValue = cell.getStringCellValue();
-				if(rowValue.equals(currentTestname)) {
+				if (rowValue.equals(currentTestname)) {
 					rowNumber = j;
 					flagTestcase = true;
 					break;
@@ -1153,59 +1093,92 @@ public class ExcelDataAccess {
 
 			}
 
-			if(!flagTestcase) {
-				int lasrownum = sheet.getLastRowNum()+1;
-				HSSFRow row = sheet.createRow((short) lasrownum);  
-				row.createCell(0).setCellValue(currentTestname);  
-				row.createCell(columnNumber).setCellValue(value); 
+			if (!flagTestcase) {
+				int lasrownum = sheet.getLastRowNum() + 1;
+				HSSFRow row = sheet.createRow((short) lasrownum);
+				row.createCell(0).setCellValue(currentTestname);
+				row.createCell(columnNumber).setCellValue(value);
 			} else {
 				HSSFRow row = sheet.getRow(rowNumber);
 				row.createCell(columnNumber).setCellValue(value);
 			}
 
-			FileOutputStream fileOut = new FileOutputStream(filename);  
-			workbook.write(fileOut);  
-			fileOut.close();  
-			workbook.close();  
+			FileOutputStream fileOut = new FileOutputStream(filename);
+			workbook.write(fileOut);
+			fileOut.close();
+			workbook.close();
 
-		}   catch (Exception e)    {  
+		} catch (Exception e) {
 
 			throw new FrameworkException("Unable to update excel worksheet. " + e.getMessage());
 
-		} 
+		}
 
 	}
 
 	/**
 	 * Method to create a output Excel file
-	 * 
-	 * @param filename
-	 * 				The output file path and name
-	 * @param columnname
-	 * 				The column header
+	 *
+	 * @param filename   The output file path and name
+	 * @param columnname The column header
 	 */
 	public void createOutputExcel(String filename, String columnname) {
 
-		try  {
+		try {
 
-			HSSFWorkbook workbook = new HSSFWorkbook();  
-			HSSFSheet sheet = workbook.createSheet("OutputData");   
-			HSSFRow rowhead = sheet.createRow((short)0);  
+			HSSFWorkbook workbook = new HSSFWorkbook();
+			HSSFSheet sheet = workbook.createSheet("OutputData");
+			HSSFRow rowhead = sheet.createRow((short) 0);
 			rowhead.createCell(0).setCellValue("TC_ID");
 			rowhead.createCell(1).setCellValue(columnname);
-			FileOutputStream fileOut = new FileOutputStream(filename);  
-			workbook.write(fileOut);  
+			FileOutputStream fileOut = new FileOutputStream(filename);
+			workbook.write(fileOut);
 
-			fileOut.close();  
+			fileOut.close();
 
-			workbook.close(); 
+			workbook.close();
 
-		} catch (Exception e)  {  
+		} catch (Exception e) {
 
 			throw new FrameworkException("Create a new excel file to save output data. " + e.getMessage());
 
-		} 
+		}
 
 	}
 
+	/**
+	 * Returns a map of column names to cell values for the specified row index.
+	 *
+	 * @param rowIndex the row index
+	 * @return Map<String, String> of column name to cell value
+	 */
+	public Map<String, String> getDataAsMap(int rowIndex) {
+		Map<String, String> rowMap = new java.util.HashMap<>();
+		for (String columnName : getColumnNames()) {
+			rowMap.put(columnName, getValue(rowIndex, columnName));
+		}
+		return rowMap;
+	}
+
+	/**
+	 * Returns a list of column names from the header row (first row) of the sheet.
+	 *
+	 * @return java.util.List<String> of column names
+	 */
+	public java.util.List<String> getColumnNames() {
+		checkPreRequisites();
+		java.util.List<String> columnNames = new java.util.ArrayList<>();
+		HSSFWorkbook workbook = openFileForReading();
+		HSSFSheet worksheet = getWorkSheet(workbook);
+		FormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
+		HSSFRow headerRow = worksheet.getRow(0);
+		if (headerRow != null) {
+			for (int i = 0; i < headerRow.getLastCellNum(); i++) {
+				HSSFCell cell = headerRow.getCell(i);
+				String columnName = getCellValueAsString(cell, formulaEvaluator);
+				columnNames.add(columnName);
+			}
+		}
+		return columnNames;
+	}
 }

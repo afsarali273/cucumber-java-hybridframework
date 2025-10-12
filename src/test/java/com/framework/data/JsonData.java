@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -218,5 +219,39 @@ public class JsonData {
 			throw new FrameworkException("Unable to create output JSON file.. " + e.getMessage());
 		}
 	}
+
+	 private final String filePath;
+	    private final String fileName;
+
+	    public JsonData(String filePath, String fileName) {
+	        this.filePath = filePath + com.framework.report.Util.getFileSeparator() + fileName + ".json";
+	        this.fileName = fileName;
+	    }
+
+	    /**
+	     * Returns a map of column names to values for the object matching the given testCaseId.
+	     * Assumes the JSON file is an array of objects, each with a "TestCaseId" field.
+	     */
+	    public Map<String, String> getDataAsMap(String testCaseId) throws Exception {
+	        JSONParser parser = new JSONParser();
+	        try (FileReader reader = new FileReader(this.filePath)) {
+	            Object obj = parser.parse(reader);
+	            JSONArray arr = (JSONArray) obj;
+	            for (Object item : arr) {
+	                JSONObject jsonObj = (JSONObject) item;
+	                Object tcIdObj = jsonObj.get("TestCaseId");
+	                if (tcIdObj != null && testCaseId.equals(tcIdObj.toString())) {
+	                    Map<String, String> result = new HashMap<>();
+	                    for (Object key : jsonObj.keySet()) {
+	                        result.put(key.toString(), jsonObj.get(key) != null ? jsonObj.get(key).toString() : "");
+	                    }
+	                    return result;
+	                }
+	            }
+	        } catch (Exception e) {
+	            throw new FrameworkException("Unable to read JSON testdata file. " + e.getMessage());
+	        }
+	        return null;
+	    }
 
 }

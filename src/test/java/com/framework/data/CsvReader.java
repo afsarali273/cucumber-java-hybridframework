@@ -9,11 +9,26 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.framework.components.FrameworkException;
 import com.framework.report.Util;
 
 public class CsvReader {
+
+    private final String filePath;
+    private final String fileName;
+
+    /**
+     * Constructor to initialize the CSV data filepath and filename
+     *
+     * @param filePath The absolute path where the CSV data file is stored
+     * @param fileName The name of the CSV data file (without the extension)
+     */
+    public CsvReader(String filePath, String fileName) {
+        this.filePath = filePath + Util.getFileSeparator() + fileName + ".csv";
+        this.fileName = fileName;
+    }
 
 	/**
 	 * Function to read values from a CSV file return it in a Hasmap
@@ -243,6 +258,33 @@ public class CsvReader {
 		}
 	}
 
+    /**
+     * Returns a map of column names to cell values for the row matching the given testCaseId.
+     * Assumes the first row contains headers and "TestCaseId" is a column.
+     */
+    public Map<String, String> getDataAsMap(String testCaseId) throws Exception {
+        java.util.List<String> columnNames = null;
+        try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.FileReader(this.filePath))) {
+            String line;
+            int lineNum = 0;
+            while ((line = reader.readLine()) != null) {
+                String[] values = line.split(",");
+                if (lineNum == 0) {
+                    columnNames = java.util.Arrays.asList(values);
+                } else {
+                    int tcIndex = columnNames.indexOf("TestCaseId");
+                    if (tcIndex != -1 && values.length > tcIndex && testCaseId.equals(values[tcIndex])) {
+                        Map<String, String> rowMap = new java.util.HashMap<>();
+                        for (int i = 0; i < columnNames.size() && i < values.length; i++) {
+                            rowMap.put(columnNames.get(i), values[i]);
+                        }
+                        return rowMap;
+                    }
+                }
+                lineNum++;
+            }
+        }
+        return null;
+    }
+
 }
-
-

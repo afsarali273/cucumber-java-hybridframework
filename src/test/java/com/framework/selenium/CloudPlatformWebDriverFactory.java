@@ -85,11 +85,10 @@ public class CloudPlatformWebDriverFactory {
 	 * @return Instance of the {@link RemoteWebDriver} object
 	 */
 	public static WebDriver getRemoteWebDriver(String browserName, String browserVersion, String platformName,String testcaseName,ExecutionMode executionMode,SeleniumTestParameters testParameters) {
-
 		System.out.println("Execution Mode - "+executionMode);
 		System.out.println("Browser Version - "+browserVersion);
+		MutableCapabilities capabilities = new MutableCapabilities();
 		switch (executionMode) {
-
 			case SAUCELABS:
 				System.out.println("Inside SauceLabs");
 				System.setProperty("SAUCE_USERNAME", properties.getProperty("SauceUserName"));
@@ -109,7 +108,6 @@ public class CloudPlatformWebDriverFactory {
 					if(platformName.contains("WINDOWS"))
 						sauceBrowserOptions.setPlatformName(SaucePlatform.WINDOWS_10);
 				}
-				//URL url;
 				Map<String, Object> sauceOptions = new HashMap<>();
 				sauceOptions.put("build",properties.getProperty("SauceBuildName"));
 				sauceOptions.put("name",properties.getProperty("SauceTestName"));
@@ -118,25 +116,19 @@ public class CloudPlatformWebDriverFactory {
 				sauceOptions.put("console",properties.getProperty("SauceConsoleLog"));
 				sauceOptions.put("timezone",properties.getProperty("SauceTimeZone"));
 				sauceOptions.put("public", properties.getProperty("SauceJobVisibility"));
-				//sauceBrowserOptions.setCapability("sauce:options", sauceOptions);
 				try {
-					//url = new URL(mobileproperties.getProperty("RemoteUrl"));
 					sauceSession.set(new SauceSession(sauceBrowserOptions));
 				} catch (Exception e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				driver = sauceSession.get().start();
 				break;
-
-
 			case AWSDEVICEFARM:
 				String myProjectARN =  null;
 				myProjectARN = properties.getProperty("AWS_ARN");
 				DeviceFarmClient client  = DeviceFarmClient.builder().region(Region.US_WEST_2).build();
-
 				CreateTestGridUrlRequest request = CreateTestGridUrlRequest.builder()
-						.expiresInSeconds(86400) //86400 is a maximum value
+						.expiresInSeconds(86400)
 						.projectArn(myProjectARN)
 						.build();
 				CreateTestGridUrlResponse response = client.createTestGridUrl(request);
@@ -146,37 +138,23 @@ public class CloudPlatformWebDriverFactory {
 				} catch (MalformedURLException e) {
 					throw new RuntimeException(e);
 				}
-
-//				Map<String, String> mobileEmulation = new HashMap<>();
-//				mobileEmulation.put("deviceName", "Nexus 7");
 				ChromeOptions options = new ChromeOptions();
-
 				System.out.println(browserName+"--"+browserVersion+"--"+platformName);
-
 				if(!browserName.equalsIgnoreCase("MicrosoftEdge")) {
 					options.setCapability("browserName", browserName.toLowerCase());
 				}else {
 					options.setCapability("browserName", browserName);
-//					EdgeOptions Eoptions = new EdgeOptions();
-
 				}
-
-				//options.setCapability("browserName",browserName.toLowerCase());
 				options.setCapability("browserVersion","latest");
 				options.setCapability("platform","windows");
-//				options.setExperimentalOption("mobileEmulation", mobileEmulation);
 				driver = new RemoteWebDriver(testGridUrl, options);
-
 				break;
-
 			case LAMBDATEST:
-
 				String lambdaWebGridUrl = properties.getProperty("LambdaWebHost");
 				System.out.println("The LambdaTest Grid Url is - "+ lambdaWebGridUrl);
-				DesiredCapabilities LTBrowserCap = new DesiredCapabilities();
-				LTBrowserCap.setCapability("browserName",browserName);
-				LTBrowserCap.setCapability("browserVersion",browserVersion);
-				LTBrowserCap.setCapability("platformName",platformName);
+				capabilities.setCapability("browserName",browserName);
+				capabilities.setCapability("browserVersion",browserVersion);
+				capabilities.setCapability("platformName",platformName);
 				HashMap<String, Object> ltOptions = new HashMap<String, Object>();
 				ltOptions.put("build", properties.getProperty("LambdaTestBuildName"));
 				ltOptions.put("project", properties.getProperty("LambdaTestProjectName"));
@@ -193,16 +171,15 @@ public class CloudPlatformWebDriverFactory {
 					ltOptions.put("name", testParameters.getCurrentTestcase());
 				else
 					ltOptions.put("name", testParameters.getScenario().getName());
-				LTBrowserCap.setCapability("LT:Options", ltOptions);
+				capabilities.setCapability("LT:Options", ltOptions);
 				try {
-					driver = new RemoteWebDriver(new URL(lambdaWebGridUrl), LTBrowserCap);
+					driver = new RemoteWebDriver(new URL(lambdaWebGridUrl), capabilities);
 				} catch (MalformedURLException e) {
 					System.out.println("Invalid grid URL");
 				} catch (Exception e) {
 					System.out.println(e.getMessage());
 				}
 				break;
-
 			case BROWSERSTACK:
 				String browserStackuserName = properties.getProperty("BrowserStackUserName");
 				String browserStackaccessKey = properties.getProperty("BrowserStackAccessKey");
@@ -227,7 +204,6 @@ public class CloudPlatformWebDriverFactory {
 				else
 					bsOptions.put("sessionName", testParameters.getScenario().getName());
 				browserStackOptions.setCapability("LT:Options", bsOptions);
-
 				try {
 					driver = new RemoteWebDriver(new URL("https://" + browserStackuserName + ":" + browserStackaccessKey + browserStackgridURL), browserStackOptions);
 				} catch (MalformedURLException e) {
@@ -236,13 +212,11 @@ public class CloudPlatformWebDriverFactory {
 					System.out.println(e.getMessage());
 				}
 				break;
-
-
 			case PERFECTO:
 				String cloudName = properties.getProperty("PerfectoGridUrl");
 				String securityToken = properties.getProperty("PerfectoSecurityToken");
 
-				DesiredCapabilities capabilities = new DesiredCapabilities("mobileChrome", "", Platform.ANY);
+				capabilities = new DesiredCapabilities("mobileChrome", "", Platform.ANY);
 				capabilities.setCapability("securityToken", securityToken);
 				capabilities.setCapability("platformName", platformName);
 				capabilities.setCapability("platformVersion", properties.getProperty("PerfectoOsVersion"));
@@ -250,14 +224,12 @@ public class CloudPlatformWebDriverFactory {
 				capabilities.setCapability("browserVersion", browserVersion);
 				capabilities.setCapability("resolution", properties.getProperty("PerfectoResolution"));
 				capabilities.setCapability("location", properties.getProperty("PerfectoLocation"));
-				//capabilities.setCapability("seleniumVersion", properties.getProperty("PerfectoSeleniumVersion"));
 				URL url = null;
 				try {
 					url = new URL("https://" + cloudName + "/nexperience/perfectomobile/wd/hub/fast");
 				} catch (MalformedURLException e) {
 					throw new RuntimeException(e);
 				}
-			//	RemoteWebDriver driver = new RemoteWebDriver(url, capabilities);
 				driver = new RemoteWebDriver(url,capabilities);
 				break;
 

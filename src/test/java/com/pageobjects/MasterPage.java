@@ -193,7 +193,7 @@ public class MasterPage extends WebReusableComponents {
 	
 	public void handlePageLoading() {
 		try {			
-			driver.manage().timeouts().implicitlyWait(implicitWaitInMilliSeconds,TimeUnit.MILLISECONDS);
+			driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(implicitWaitInMilliSeconds));
 			WebDriverWait w = new WebDriverWait(driver, Duration.ofSeconds(30));
 			String xpath = "//*[@id='lip.loadingNotification']";
 			By by = By.xpath(xpath);
@@ -206,10 +206,10 @@ public class MasterPage extends WebReusableComponents {
 				totalLoading += elapsedTime;
 				addTestLog("handlePageLoading", "Loading ended in " + elapsedTime + " milliseconds. (total = " + totalLoading + ")",Status.PASS);
 			}
-			driver.manage().timeouts().implicitlyWait(10,TimeUnit.SECONDS);
+			driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
 		}
 		finally {
-			driver.manage().timeouts().implicitlyWait(10,TimeUnit.SECONDS);
+			driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
 		}
 	}
 	

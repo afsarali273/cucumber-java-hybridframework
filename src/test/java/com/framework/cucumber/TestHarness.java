@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import com.framework.selenium.CloudPlatformMobileDriverFactory;
 import io.appium.java_client.windows.WindowsDriver;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -250,17 +249,12 @@ public class TestHarness {
         switch (properties.getProperty("TestData").toString()) {
 
             case "JSON":
-
-                JsonData jsdata = new JsonData();
-                data = jsdata.readJson(datatablePath, dataTable.toString(), currentTestID);
-
+                JsonData jsdata = new JsonData(datatablePath, dataTable);
+                data = jsdata.readJson(datatablePath, dataTable, currentTestID);
                 break;
 
             case "EXCEL":
-
-                String excelName = null;
-
-                excelName = "DataTable";
+                String excelName = "DataTable";
                 try {
                     String envDetails = System.getProperty("formUrl");
                     if (envDetails != null) {
@@ -268,49 +262,31 @@ public class TestHarness {
                     }
                 } catch (Exception e) {
                     System.out.println("Command line argument not passed to select Application URL");
-                    System.out.print(e);
+                    e.printStackTrace();
                 }
-                FrameworkDataTable excel = new FrameworkDataTable(datatablePath, dataTable.toString());
-                //FrameworkDataTable excel = new FrameworkDataTable(datatablePath, properties.getProperty("DataTable").toString());
-
+                FrameworkDataTable excel = new FrameworkDataTable(datatablePath, dataTable);
                 excel.setCurrentRow(currentTestID, 1);
-                ExcelDataAccess testDataAccess = new ExcelDataAccess(datatablePath,
-                        dataTable.toString());
-                //properties.getProperty("DataTable").toString());
+                ExcelDataAccess testDataAccess = new ExcelDataAccess(datatablePath, dataTable);
                 datas = testDataAccess.readExcelValues(currentTestID, 1);
-
                 break;
 
             case "CSV":
-
-                CsvReader csvData = new CsvReader();
-                csvdata = csvData.readCSVasHashMap(datatablePath, dataTable.toString(),
-                        currentTestID);
-
+                CsvReader csvData = new CsvReader(datatablePath, dataTable);
+                csvdata = csvData.readCSVasHashMap(datatablePath, dataTable, currentTestID);
                 break;
 
             case "ACCESSDB":
-
-                AccessDatabase accdb = new AccessDatabase();
-
+                AccessDatabase accdb = new AccessDatabase(datatablePath + Util.getFileSeparator() + dataTable + ".accdb");
                 try {
-
-                    data = accdb.executeAccessData(datatablePath, dataTable.toString(),
-                            currentTestID);
-
+                    data = accdb.executeAccessData(datatablePath, dataTable, currentTestID);
                 } catch (ClassNotFoundException | InterruptedException | SQLException e) {
-
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
-
                 }
-
                 break;
 
             default:
                 throw new FrameworkException("Invalid parameters provided for TestData in Global Settings file."
                         + "Please provide the valid name");
-
         }
     }
 

@@ -4,14 +4,16 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import org.hsqldb.types.Types;
 import com.framework.report.Util;
 import com.healthmarketscience.jackcess.ColumnBuilder;
@@ -20,9 +22,14 @@ import com.healthmarketscience.jackcess.Database.FileFormat;
 import com.healthmarketscience.jackcess.DatabaseBuilder;
 import com.healthmarketscience.jackcess.Table;
 import com.healthmarketscience.jackcess.TableBuilder;
-import java.sql.DriverManager;
 
 public class AccessDatabase {
+
+    private final String dbFilePath;
+
+    public AccessDatabase(String dbFilePath) {
+        this.dbFilePath = dbFilePath;
+    }
 
 	public HashMap<String, HashMap<String, String>> getvalue = new HashMap<String, HashMap<String, String>>();
 
@@ -325,8 +332,35 @@ public class AccessDatabase {
 				.addColumn(new ColumnBuilder(columnName).setSQLType(Types.VARCHAR).toColumn())
 				.toTable(database);
 	}
-	
-	
 
+	/**
+	 * Returns a map of column names to values for the row matching the given testCaseId in the specified table.
+	 * Assumes "TestCaseId" is a column in the table.
+	 */
+	public Map<String, String> getDataAsMap(String tableName, String testCaseId) throws Exception {
+		Map<String, String> result = new HashMap<>();
+		Connection conn = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		try {
+			// Example: "jdbc:ucanaccess://<dbFilePath>"
+			conn = DriverManager.getConnection("jdbc:ucanaccess://" + dbFilePath);
+			stmt = conn.createStatement();
+			rs = stmt.executeQuery("SELECT * FROM [" + tableName + "] WHERE TestCaseId='" + testCaseId + "'");
+			if (rs.next()) {
+				int colCount = rs.getMetaData().getColumnCount();
+				for (int i = 1; i <= colCount; i++) {
+					String colName = rs.getMetaData().getColumnName(i);
+					String value = rs.getString(i);
+					result.put(colName, value != null ? value : "");
+				}
+			}
+		} finally {
+			if (rs != null) try { rs.close(); } catch (Exception ignored) {}
+			if (stmt != null) try { stmt.close(); } catch (Exception ignored) {}
+			if (conn != null) try { conn.close(); } catch (Exception ignored) {}
+		}
+		return result;
+	}
 
 }

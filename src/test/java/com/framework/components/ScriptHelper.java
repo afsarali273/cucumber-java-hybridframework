@@ -111,7 +111,7 @@ public class ScriptHelper {
 	/**
 	 * Function to get the {@link RestAssuredUtils} object
 	 * 
-	 * @return The {@link apiDriver} object
+	 * @return The {@link RestAssuredUtils} object
 	 */
 	public RestAssuredUtils getApiDriver() {
 		return apiDriver;
